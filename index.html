@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>REYHANTEX | Royal Fabric Showroom</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Vazirmatn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        reyhan: {
+                            green: '#013a34',
+                            dark: '#002521',
+                            gold: '#d4af37',
+                            goldLight: '#f3e5ab',
+                        }
+                    },
+                    backgroundImage: {
+                        'gold-gradient': 'linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)',
+                        'green-gradient': 'linear-gradient(to bottom, #013a34, #002521)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
+                        'logo-float': 'logoFloat 8s ease-in-out infinite',
+                        'glow': 'glow 3s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+                        pulseSubtle: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.8' } },
+                        logoFloat: { '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' }, '25%': { transform: 'translateY(-15px) rotate(2deg)' }, '50%': { transform: 'translateY(0px) rotate(0deg)' }, '75%': { transform: 'translateY(-8px) rotate(-1deg)' } },
+                        glow: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.7' } },
+                        shimmer: { '0%': { backgroundPosition: '-500px 0' }, '100%': { backgroundPosition: '500px 0' } },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: #013a34;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .text-gold {
+            background: linear-gradient(to bottom, #fcf6ba, #bf953f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-panel {
+            background: rgba(1, 58, 52, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #002521;
+        }
+
+        ::webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 4px;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37, #f3e5ab, #b38728);
+            color: #002521;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+            outline: none;
+        }
+
+        .logo-glow {
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
+        }
+
+        .logo-image {
+            transition: all 0.5s ease;
+            object-fit: contain;
+        }
+
+        /* Floating Image Viewer */
+        .image-viewer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(1, 37, 33, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .image-viewer-container {
+            width: 90vw;
+            max-width: 450px;
+            height: 80vh;
+            max-height: 800px;
+            position: relative;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .image-viewer-frame {
+            width: 100%;
+            height: 100%;
+            background: rgba(1, 58, 52, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            aspect-ratio: 9/16;
+        }
+
+        .viewer-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .close-viewer-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 50px;
+            height: 50px;
+            background: rgba(212, 175, 55, 0.9);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10000;
+            transition: all 0.3s;
+        }
+
+        .close-viewer-btn:hover {
+            background: rgba(212, 175, 55, 1);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .close-viewer-btn i {
+            color: #002521;
+            width: 24px;
+            height: 24px;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 37, 33, 0.8);
+            color: #d4af37;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(212, 175, 55, 0.8);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10000;
+        }
+
+        .nav-btn:hover {
+            background: rgba(212, 175, 55, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-btn.prev {
+            right: 20px;
+        }
+
+        .nav-btn.next {
+            left: 20px;
+        }
+
+        .nav-btn i {
+            color: #002521;
+            width: 24px;
+            height: 24px;
+        }
+
+        .image-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 37, 33, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            max-width: 80%;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .image-viewer-container {
+                width: 95vw;
+                height: 85vh;
+            }
+
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .nav-btn.prev {
+                right: 10px;
+            }
+
+            .nav-btn.next {
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-reyhan-green min-h-screen">
+
+    <div id="app" class="w-full min-h-screen"></div>
+
+    <script>
+        /**
+         * REYHANTEX FABRIC SHOWROOM
+         * Enhanced Version with Customizable Logo and Image Viewer
+         */
+
+        const CONFIG = {
+            password: "123",
+            adminPassword: "admin123",
+            dbName: "ReyhanTexDB",
+            dbVersion: 3,
+            logoImage: localStorage.getItem('reyhantex_logo') || 'assets/logo/IMG_20251209_154206_917.jpg'
+        };
+
+        const FABRICS = [
+            {
+                id: 1,
+                name: 'ریحانا',
+                enName: 'Reyhana',
+                price: '$$$',
+                image: 'assets/fabric/reyhana/children/1770015701234.png',
+                categoryImages: {
+                    male: 'assets/fabric/selina/male/1770109219087.png',
+                    female: 'assets/fabric/pofaki/female/1770018110135.png',
+                    children: 'assets/fabric/pofaki/children/1770112752571.png'
+                }
+            },
+            {
+                id: 2,
+                name: 'پفکی (ینزی)',
+                enName: 'Pofaki (Yenzi)',
+                price: '$$$$',
+                image: 'assets/fabric/pofaki/children/1770112977067.png',
+                categoryImages: {
+                    male: 'assets/fabric/selina/male/1770109219087.png',
+                    female: 'assets/fabric/pofaki/female/1770018110135.png',
+                    children: 'assets/fabric/pofaki/children/1770112752571.png'
+                }
+            },
+            {
+                id: 3,
+                name: 'سلینا',
+                enName: 'Selina',
+                price: '$$$$',
+                image: 'assets/fabric/selina/male/1770109459483.png',
+                categoryImages: {
+                    male: 'assets/fabric/selina/male/1770109219087.png',
+                    female: 'assets/fabric/pofaki/female/1770018110135.png',
+                    children: 'assets/fabric/pofaki/children/1770112752571.png'
+                }
+            },
+        ];
+
+        const CATEGORIES = [
+            {
+                id: 'male',
+                label: 'آقایـان',
+                enLabel: 'Gentlemen',
+                desc: 'ساختار و قدرت',
+                color: 'bg-blue-900/40',
+                border: 'border-blue-500/30',
+            },
+            {
+                id: 'female',
+                label: 'بانـوان',
+                enLabel: 'Ladies',
+                desc: 'شکوه و زیبایی',
+                color: 'bg-pink-900/40',
+                border: 'border-pink-500/30',
+            },
+            {
+                id: 'children',
+                label: 'کـودکان',
+                enLabel: 'Little Ones',
+                desc: 'لطافت و رویا',
+                color: 'bg-purple-900/40',
+                border: 'border-purple-500/30',
+            },
+        ];
+
+        const GALLERY_IMAGES = {
+            reyhana_male: [],
+            reyhana_female: [
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 03_47_37 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 03_47_37 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 03_56_47 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_21_13 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_34_23 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_48_54 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_54_43 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_16_15 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_31_05 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_44_24 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_00_18 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_07_00 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_09_06 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_11_10 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_39_41 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_51_18 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_51_28 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_51_30 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_58_39 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_03_33 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_04_47 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_07_46 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_09_06 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_14_13 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_16_50 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_40_54 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_40_59 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_41_05 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_45_50 AM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 12_44_18 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 12_49_36 PM.png',
+                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 12_57_26 PM.png',
+            ],
+            reyhana_children: [
+                'assets/fabric/reyhana/children/1770015636848.png',
+                'assets/fabric/reyhana/children/1770015672874.png',
+                'assets/fabric/reyhana/children/1770015701234.png',
+                'assets/fabric/reyhana/children/1770015729556.png',
+                'assets/fabric/reyhana/children/1770015790133.png',
+                'assets/fabric/reyhana/children/1770015819565.png',
+                'assets/fabric/reyhana/children/1770015902789.png',
+                'assets/fabric/reyhana/children/Gemini_Generated_Image_7h6gic7h6gic7h6g.png',
+                'assets/fabric/reyhana/children/Gemini_Generated_Image_t2d95kt2d95kt2d9.png',
+                'assets/fabric/reyhana/children/Gemini_Generated_Image_tl4g8ntl4g8ntl4g.png',
+                'assets/fabric/reyhana/children/Gemini_Generated_Image_uw4e96uw4e96uw4e.png',
+                'assets/fabric/reyhana/children/Gemini_Generated_Image_uxyx4huxyx4huxyx.png',
+                'assets/fabric/reyhana/children/Gemini_Generated_Image_vpzgcuvpzgcuvpzg.png',
+            ],
+            pofaki_male: [],
+            pofaki_female: [
+                'assets/fabric/pofaki/female/1765890467695.jpg',
+                'assets/fabric/pofaki/female/1769515671229.png',
+                'assets/fabric/pofaki/female/1770018110135.png',
+                'assets/fabric/pofaki/female/1770018306729.png',
+                'assets/fabric/pofaki/female/1770018459064.png',
+                'assets/fabric/pofaki/female/1770018531854.png',
+                'assets/fabric/pofaki/female/1770018604231.png',
+                'assets/fabric/pofaki/female/1770019000539.png',
+                'assets/fabric/pofaki/female/1770019009600.png',
+                'assets/fabric/pofaki/female/1770019015979.png',
+                'assets/fabric/pofaki/female/1770019097905.png',
+                'assets/fabric/pofaki/female/1770019378929.png',
+                'assets/fabric/pofaki/female/1770039550790.png',
+                'assets/fabric/pofaki/female/1770040588723.png',
+                'assets/fabric/pofaki/female/1770040773855.png',
+                'assets/fabric/pofaki/female/ChatGPT Image Jan 29, 2026, 01_24_26 PM.png',
+                'assets/fabric/pofaki/female/Gemini_Generated_Image_e8l0qte8l0qte8l0.png',
+                'assets/fabric/pofaki/female/Gemini_Generated_Image_hh71tchh71tchh71.png',
+                'assets/fabric/pofaki/female/Gemini_Generated_Image_ncrt8kncrt8kncrt.png',
+                'assets/fabric/pofaki/female/Gemini_Generated_Image_uvdm5xuvdm5xuvdm.png',
+                'assets/fabric/pofaki/female/Gemini_Generated_Image_v68zczv68zczv68z.png',
+                'assets/fabric/pofaki/female/Gemini_Generated_Image_xr7tgcxr7tgcxr7t.png',
+                'assets/fabric/pofaki/female/Gemini_Generated_Image_xup0yjxup0yjxup0.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151219.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151242.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151312.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151331.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151358.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151415.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151445.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151509.png',
+                'assets/fabric/pofaki/female/IMG_20260202_151535.png',
+            ],
+            pofaki_children: [
+                'assets/fabric/pofaki/children/1770110218507.png',
+                'assets/fabric/pofaki/children/1770110370256.png',
+                'assets/fabric/pofaki/children/1770110482376.png',
+                'assets/fabric/pofaki/children/1770110706577.png',
+                'assets/fabric/pofaki/children/1770112752571.png',
+                'assets/fabric/pofaki/children/1770112977067.png',
+                'assets/fabric/pofaki/children/1770113555664.png',
+                'assets/fabric/pofaki/children/1770114116695.png',
+                'assets/fabric/pofaki/children/1770114208083.png',
+                'assets/fabric/pofaki/children/1770114262292.png',
+                'assets/fabric/pofaki/children/1770114327122.png',
+                'assets/fabric/pofaki/children/1770114379835.png',
+                'assets/fabric/pofaki/children/1770114439797.png',
+                'assets/fabric/pofaki/children/1770114487477.png',
+                'assets/fabric/pofaki/children/1770114543076.png',
+            ],
+            selina_male: [
+                'assets/fabric/selina/male/1770109002011.png',
+                'assets/fabric/selina/male/1770109219087.png',
+                'assets/fabric/selina/male/1770109237763.png',
+                'assets/fabric/selina/male/1770109404605.png',
+                'assets/fabric/selina/male/1770109459483.png',
+                'assets/fabric/selina/male/1770109780407.png',
+            ],
+            selina_female: [
+                'assets/fabric/selina/female/1765869607872.jpg',
+                'assets/fabric/selina/female/1765891532899.jpg',
+                'assets/fabric/selina/female/1770040351354.png',
+                'assets/fabric/selina/female/1770040832256.png',
+                'assets/fabric/selina/female/1770106262449.png',
+                'assets/fabric/selina/female/1770106289197.png',
+                'assets/fabric/selina/female/1770106315164.png',
+                'assets/fabric/selina/female/1770108523837.png',
+                'assets/fabric/selina/female/1770108637157.png',
+                'assets/fabric/selina/female/1770108723545.png',
+            ],
+            selina_children: [],
+        };
+
+        // IMAGE VIEWER STATE
+        let imageViewerState = {
+            isOpen: false,
+            currentIndex: 0,
+            images: [],
+            title: ''
+        };
+
+        // Image Viewer Functions
+        function openImageViewer(images, startIndex = 0, title = '') {
+            imageViewerState = {
+                isOpen: true,
+                currentIndex: startIndex,
+                images: images,
+                title: title
+            };
+            renderImageViewer();
+        }
+
+        function closeImageViewer() {
+            imageViewerState.isOpen = false;
+            const viewer = document.getElementById('imageViewer');
+            if (viewer) {
+                viewer.remove();
+            }
+        }
+
+        function navigateImage(direction) {
+            if (direction === 'next') {
+                imageViewerState.currentIndex = (imageViewerState.currentIndex + 1) % imageViewerState.images.length;
+            } else {
+                imageViewerState.currentIndex = (imageViewerState.currentIndex - 1 + imageViewerState.images.length) % imageViewerState.images.length;
+            }
+            renderImageViewer();
+        }
+
+        function renderImageViewer() {
+            const existingViewer = document.getElementById('imageViewer');
+            if (existingViewer) {
+                existingViewer.remove();
+            }
+
+            if (!imageViewerState.isOpen || imageViewerState.images.length === 0) return;
+
+            const viewer = document.createElement('div');
+            viewer.id = 'imageViewer';
+            viewer.className = 'image-viewer-overlay';
+            viewer.innerHTML = `
+                <div class="image-viewer-container">
+                    <button class="close-viewer-btn" onclick="closeImageViewer()">
+                        <i data-lucide="x"></i>
+                    </button>
+                    
+                    <div class="image-viewer-frame">
+                        <img src="${imageViewerState.images[imageViewerState.currentIndex]}" 
+                             alt="Image ${imageViewerState.currentIndex + 1}"
+                             class="viewer-image">
+                        
+                        ${imageViewerState.title ? `
+                            <div class="image-title">
+                                ${imageViewerState.title} - طراحی ${imageViewerState.currentIndex + 1}
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${imageViewerState.images.length > 1 ? `
+                        <button class="nav-btn prev" onclick="navigateImage('prev')">
+                            <i data-lucide="chevron-right"></i>
+                        </button>
+                        <button class="nav-btn next" onclick="navigateImage('next')">
+                            <i data-lucide="chevron-left"></i>
+                        </button>
+                        
+                        <div class="image-counter">
+                            ${imageViewerState.currentIndex + 1} / ${imageViewerState.images.length}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.body.appendChild(viewer);
+            lucide.createIcons();
+
+            // Keyboard navigation
+            const handleKeyDown = (e) => {
+                if (e.key === 'Escape') closeImageViewer();
+                if (e.key === 'ArrowRight') navigateImage('next');
+                if (e.key === 'ArrowLeft') navigateImage('prev');
+            };
+
+            document.addEventListener('keydown', handleKeyDown);
+
+            // Click outside to close
+            viewer.addEventListener('click', (e) => {
+                if (e.target === viewer) {
+                    closeImageViewer();
+                }
+            });
+
+            // Clean up event listener
+            viewer._keydownHandler = handleKeyDown;
+        }
+
+        // Utility Functions
+        function getGalleryImages(fabricId, categoryId) {
+            const fabricNames = {
+                1: 'reyhana',
+                2: 'pofaki',
+                3: 'selina'
+            };
+
+            const fabricName = fabricNames[fabricId];
+            const key = `${fabricName}_${categoryId}`;
+            return GALLERY_IMAGES[key] || [];
+        }
+
+        // Simple Database
+        class SimpleMemoryDB {
+            constructor() {
+                this.customers = JSON.parse(localStorage.getItem('reyhantex_customers') || '[]');
+                this.phoneSet = new Set(this.customers.map(c => c.phone));
+            }
+
+            saveToStorage() {
+                localStorage.setItem('reyhantex_customers', JSON.stringify(this.customers));
+            }
+
+            addCustomer(data) {
+                if (this.phoneSet.has(data.phone)) {
+                    return { success: false, message: 'شماره تلفن تکراری است' };
+                }
+
+                const customer = {
+                    id: Date.now(),
+                    ...data,
+                    timestamp: new Date().toISOString()
+                };
+
+                this.customers.push(customer);
+                this.phoneSet.add(data.phone);
+                this.saveToStorage();
+
+                return { success: true, message: 'اطلاعات با موفقیت ثبت شد' };
+            }
+
+            getAllCustomers() {
+                return [...this.customers].reverse();
+            }
+
+            clearAll() {
+                this.customers = [];
+                this.phoneSet.clear();
+                this.saveToStorage();
+            }
+        }
+
+        const db = new SimpleMemoryDB();
+
+        // Application State
+        const state = {
+            view: 'gate',
+            userData: { name: '', phone: '', instagram: '' },
+            selectedFabric: null,
+            selectedCategory: null
+        };
+
+        // Navigation Helper
+        function navigateTo(view) {
+            state.view = view;
+            render();
+            window.scrollTo(0, 0);
+        }
+
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-slide-up ${type === 'success' ? 'bg-green-600' :
+                type === 'error' ? 'bg-red-600' :
+                    type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
+                }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i data-lucide="${type === 'success' ? 'check-circle' :
+                    type === 'error' ? 'alert-circle' :
+                        type === 'warning' ? 'alert-triangle' : 'info'
+                }" class="w-5 h-5"></i>
+                    <span class="font-bold">${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Logo Component
+        function getLogoMarkup(size = 'w-40 h-40', animate = true) {
+            return `
+                <div class="flex flex-col items-center justify-center ${animate ? 'animate-logo-float' : ''}">
+                    <div class="${size} rounded-full overflow-hidden border-4 border-reyhan-gold/30 logo-glow">
+                        <img src="${CONFIG.logoImage}" 
+                             alt="REYHANTEX Logo" 
+                             class="w-full h-full object-cover logo-image">
+                    </div>
+                    <h1 class="text-gold font-black tracking-[0.3em] text-3xl mt-4 drop-shadow-lg">REYHANTEX</h1>
+                </div>
+            `;
+        }
+
+        // Render Engine
+        function render() {
+            const app = document.getElementById('app');
+            app.innerHTML = '';
+
+            // Add Home button to all pages except gate and landing
+            if (state.view !== 'gate' && state.view !== 'landing') {
+                const homeBtn = document.createElement('button');
+                homeBtn.onclick = () => navigateTo('landing');
+                homeBtn.className = 'fixed top-4 left-4 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
+                homeBtn.innerHTML = '<i data-lucide="home" class="w-5 h-5 text-reyhan-gold"></i>';
+                app.appendChild(homeBtn);
+            }
+
+            // Add Admin button on landing page
+            if (state.view === 'landing') {
+                const adminBtn = document.createElement('button');
+                adminBtn.onclick = requestAdminAccess;
+                adminBtn.className = 'fixed top-4 left-16 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
+                adminBtn.innerHTML = '<i data-lucide="crown" class="w-5 h-5 text-reyhan-gold"></i>';
+                app.appendChild(adminBtn);
+            }
+
+            switch (state.view) {
+                case 'gate': app.appendChild(createGateView()); break;
+                case 'landing': app.appendChild(createEnhancedLandingView()); break;
+                case 'form': app.appendChild(createFormView()); break;
+                case 'category': app.appendChild(createCategoryView()); break;
+                case 'gallery': app.appendChild(createGalleryView()); break;
+                case 'admin': app.appendChild(createEnhancedAdminView()); break;
+            }
+
+            setTimeout(() => lucide.createIcons(), 50);
+        }
+
+        // Admin Access Function
+        function requestAdminAccess() {
+            const password = prompt('لطفا رمز مدیریت را وارد کنید:');
+            if (password === CONFIG.adminPassword) {
+                navigateTo('admin');
+            } else if (password) {
+                showNotification('رمز عبور اشتباه است', 'error');
+            }
+        }
+
+        // View 1: Gate
+        function createGateView() {
+            const el = document.createElement('div');
+            el.className = 'w-full h-screen flex flex-col items-center justify-center bg-green-gradient relative animate-fade-in overflow-hidden';
+            el.innerHTML = `
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-reyhan-gold rounded-full blur-3xl animate-pulse"></div>
+                    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-reyhan-gold rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+                </div>
+                
+                <div class="relative z-10 text-center p-8 glass-panel rounded-2xl max-w-md w-full mx-4 backdrop-blur-xl">
+                    ${getLogoMarkup('w-48 h-48', true)}
+                    
+                    <div class="mt-12">
+                        <input type="password" 
+                               id="passwordInput"
+                               class="w-full px-6 py-4 text-2xl text-center bg-reyhan-dark/70 border-2 border-reyhan-gold/50 rounded-xl text-white placeholder-white/30 focus:border-reyhan-gold focus:ring-2 focus:ring-reyhan-gold/30 transition-all backdrop-blur-sm"
+                               placeholder="رمز ورود"
+                               maxlength="4"
+                               autocomplete="off">
+                        <p id="errorMsg" class="text-red-300 mt-3 text-sm opacity-0 transition-opacity">رمز اشتباه است</p>
+                        
+                        <div class="mt-6 text-sm text-reyhan-gold/70">
+                            <i data-lucide="info" class="w-4 h-4 inline ml-1"></i>
+                            رمز پیش فرض: 123
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 text-reyhan-gold/50 text-xs tracking-widest animate-pulse-subtle">ROYAL FABRIC COLLECTION</div>
+            `;
+
+            const input = el.querySelector('#passwordInput');
+            const error = el.querySelector('#errorMsg');
+
+            input.focus();
+
+            input.addEventListener('input', (e) => {
+                if (e.target.value === CONFIG.password) {
+                    navigateTo('landing');
+                } else if (e.target.value.length >= 3 && e.target.value !== CONFIG.password) {
+                    error.style.opacity = '1';
+                    e.target.value = '';
+                    setTimeout(() => error.style.opacity = '0', 2000);
+                }
+            });
+
+            return el;
+        }
+
+        // View 2: Enhanced Landing Page with Scroll Effect
+        function createEnhancedLandingView() {
+            const el = document.createElement('div');
+            el.className = 'w-full min-h-screen animate-fade-in';
+
+            el.innerHTML = `
+                <div id="headerSection" class="fixed top-0 left-0 right-0 z-40 transition-all duration-500 bg-green-gradient/95 backdrop-blur-md border-b border-reyhan-gold/10">
+                    <div id="logoContainer" class="transition-all duration-500">
+                        <div class="text-center">
+                            ${getLogoMarkup('w-40 h-40', true)}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Background -->
+                <div class="absolute inset-0 pt-64">
+                    <div class="absolute inset-0 bg-gradient-to-b from-reyhan-green/30 via-transparent to-reyhan-green"></div>
+                    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-reyhan-gold/5 rounded-full blur-3xl"></div>
+                    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-reyhan-gold/5 rounded-full blur-3xl"></div>
+                </div>
+
+                <div class="relative pt-80 pb-20 px-4 max-w-7xl mx-auto">
+                    <div class="text-center mb-16 animate-slide-up" style="animation-delay: 0.2s">
+                        <h2 class="text-4xl font-bold text-white mb-4">مجموعه پارچه‌های سلطنتی</h2>
+                        <p class="text-reyhan-gold text-lg max-w-2xl mx-auto">انتخاب پارچه مناسب، اولین قدم در خلق لباسی بی‌نظیر و ماندگار</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        ${FABRICS.map((fabric, index) => `
+                            <div onclick="selectFabric(${fabric.id})" 
+                                 class="group relative bg-gradient-to-br from-reyhan-dark to-reyhan-green rounded-3xl overflow-hidden cursor-pointer border-2 border-reyhan-gold/10 hover:border-reyhan-gold transition-all duration-500 hover:-translate-y-3 animate-slide-up"
+                                 style="animation-delay: ${index * 0.1}s">
+                                
+                                <!-- Fabric Image -->
+                                <div class="aspect-square overflow-hidden relative">
+                                    <img src="${fabric.image}" 
+                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 cursor-pointer"
+                                         onclick="event.stopPropagation(); openImageViewer(['${fabric.image}'], 0, '${fabric.name}')">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-reyhan-green to-transparent opacity-80"></div>
+                                    
+                                    <!-- Price Tag -->
+                                    <div class="absolute top-4 left-4 px-4 py-2 bg-reyhan-gold/20 backdrop-blur-sm rounded-full">
+                                        <span class="text-reyhan-gold font-bold">${fabric.price}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Fabric Info -->
+                                <div class="p-6 relative">
+                                    <h3 class="text-xl font-bold text-white mb-2">${fabric.name}</h3>
+                                    <p class="text-reyhan-gold text-sm mb-4">${fabric.enName}</p>
+                                    
+                                    <!-- Category Tags -->
+                                    <div class="flex gap-2 mt-4">
+                                        <span class="px-3 py-1 bg-blue-900/30 text-blue-200 text-xs rounded-full border border-blue-700/30">آقایان</span>
+                                        <span class="px-3 py-1 bg-pink-900/30 text-pink-200 text-xs rounded-full border border-pink-700/30">بانوان</span>
+                                        <span class="px-3 py-1 bg-purple-900/30 text-purple-200 text-xs rounded-full border border-purple-700/30">کودکان</span>
+                                    </div>
+                                    
+                                    <!-- Select Button -->
+                                    <div class="mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <button class="w-full py-3 btn-gold rounded-lg font-bold flex items-center justify-center gap-2">
+                                            <span>انتخاب پارچه</span>
+                                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Footer Note -->
+                    <div class="text-center mt-16 text-reyhan-gold/50 text-sm">
+                        <i data-lucide="star" class="w-4 h-4 inline ml-1"></i>
+                        هر پارچه شامل سه دسته‌بندی مردانه، زنانه و کودک می‌باشد
+                    </div>
+                </div>
+            `;
+
+            // Scroll handler for shrinking header
+            setTimeout(() => {
+                const headerSection = el.querySelector('#headerSection');
+                const logoContainer = el.querySelector('#logoContainer');
+
+                const scrollHandler = () => {
+                    const scrollY = window.scrollY;
+                    const shrinkPoint = 50;
+
+                    if (scrollY > shrinkPoint) {
+                        // Shrunk state
+                        headerSection.style.padding = '10px 0';
+                        headerSection.style.height = '80px';
+                        headerSection.style.backdropFilter = 'blur(20px)';
+                        headerSection.style.backgroundColor = 'rgba(1, 58, 52, 0.98)';
+                        headerSection.style.borderBottom = '1px solid rgba(212, 175, 55, 0.2)';
+
+                        logoContainer.innerHTML = `
+                            <div class="flex items-center justify-center gap-4">
+                                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-reyhan-gold/30">
+                                    <img src="${CONFIG.logoImage}" 
+                                         alt="REYHANTEX Logo" 
+                                         class="w-full h-full object-cover">
+                                </div>
+                                <h1 class="text-gold font-black tracking-widest text-lg">REYHANTEX</h1>
+                            </div>
+                        `;
+                    } else {
+                        // Normal state
+                        headerSection.style.padding = '20px 0';
+                        headerSection.style.height = 'auto';
+                        headerSection.style.backdropFilter = 'blur(10px)';
+                        headerSection.style.backgroundColor = 'rgba(1, 58, 52, 0.95)';
+                        headerSection.style.borderBottom = '1px solid rgba(212, 175, 55, 0.1)';
+
+                        logoContainer.innerHTML = `
+                            <div class="text-center">
+                                ${getLogoMarkup('w-40 h-40', true)}
+                            </div>
+                        `;
+                    }
+                };
+
+                window.addEventListener('scroll', scrollHandler);
+                scrollHandler();
+            }, 100);
+
+            return el;
+        }
+
+        window.selectFabric = (id) => {
+            state.selectedFabric = FABRICS.find(f => f.id === id);
+            navigateTo('form');
+        };
+
+        // View 3: Form
+        function createFormView() {
+            const el = document.createElement('div');
+            el.className = 'min-h-screen bg-green-gradient animate-fade-in';
+            el.innerHTML = `
+                <div class="pt-20 px-4 max-w-lg mx-auto">
+                    <div class="glass-panel rounded-2xl p-8 backdrop-blur-xl">
+                        <div class="text-center mb-8">
+                            <h2 class="text-2xl font-bold text-white mb-2">اطلاعات سفارش</h2>
+                            <p class="text-reyhan-gold">
+                                پارچه انتخاب شده: 
+                                <span class="font-bold">${state.selectedFabric.name}</span>
+                            </p>
+                        </div>
+                        
+                        <form id="customerForm" class="space-y-6">
+                            <div>
+                                <label class="block text-reyhan-gold text-sm font-bold mb-2">نام و نام خانوادگی</label>
+                                <input type="text" 
+                                       id="nameInput"
+                                       required
+                                       class="w-full px-4 py-3 input-field rounded-lg text-white backdrop-blur-sm"
+                                       placeholder="نام شما">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-reyhan-gold text-sm font-bold mb-2">شماره تماس</label>
+                                <input type="tel" 
+                                       id="phoneInput"
+                                       required
+                                       maxlength="11"
+                                       class="w-full px-4 py-3 input-field rounded-lg text-white dir-ltr text-left backdrop-blur-sm"
+                                       placeholder="09123456789">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-reyhan-gold text-sm font-bold mb-2">اینستاگرام (اختیاری)</label>
+                                <input type="text" 
+                                       id="instagramInput"
+                                       class="w-full px-4 py-3 input-field rounded-lg text-white backdrop-blur-sm"
+                                       placeholder="username@">
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 pt-4">
+                                <button type="button" 
+                                        onclick="skipToCategory()"
+                                        class="py-3 px-4 border-2 border-reyhan-gold text-reyhan-gold rounded-lg font-bold hover:bg-reyhan-gold/10 transition-all backdrop-blur-sm">
+                                    <i data-lucide="skip-forward"></i>
+                                    رد کردن
+                                </button>
+                                
+                                <button type="submit" 
+                                        id="submitBtn"
+                                        class="py-3 px-4 btn-gold rounded-lg font-bold flex items-center justify-center gap-2">
+                                    <i data-lucide="arrow-left"></i>
+                                    ادامه
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            const form = el.querySelector('#customerForm');
+            const submitBtn = el.querySelector('#submitBtn');
+            const nameInput = el.querySelector('#nameInput');
+            const phoneInput = el.querySelector('#phoneInput');
+
+            const validateForm = () => {
+                const isValid = nameInput.value.length > 2 && phoneInput.value.length >= 10;
+                submitBtn.disabled = !isValid;
+                submitBtn.classList.toggle('opacity-50 cursor-not-allowed', !isValid);
+                submitBtn.classList.toggle('hover:transform', isValid);
+            };
+
+            nameInput.addEventListener('input', validateForm);
+            phoneInput.addEventListener('input', validateForm);
+
+            form.onsubmit = (e) => {
+                e.preventDefault();
+
+                state.userData = {
+                    name: nameInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    instagram: el.querySelector('#instagramInput').value.trim()
+                };
+
+                const result = db.addCustomer({
+                    ...state.userData,
+                    fabric: state.selectedFabric.name,
+                    category: ''
+                });
+
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    setTimeout(() => {
+                        navigateTo('category');
+                    }, 1000);
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            };
+
+            return el;
+        }
+
+        window.skipToCategory = () => {
+            state.userData = { name: '', phone: '', instagram: '' };
+            navigateTo('category');
+        };
+
+        // View 4: Category Selection
+        function createCategoryView() {
+            const el = document.createElement('div');
+            el.className = 'min-h-screen animate-fade-in bg-green-gradient';
+            el.innerHTML = `
+                <div class="pt-20 pb-8 px-4">
+                    <!-- Fabric Info Header -->
+                    <div class="max-w-md mx-auto mb-8 glass-panel rounded-2xl p-6 backdrop-blur-xl">
+                        <div class="text-center">
+                            <p class="text-reyhan-gold text-sm mb-2">پارچه انتخابی</p>
+                            <h3 class="text-xl font-bold text-white">${state.selectedFabric.name}</h3>
+                            <p class="text-reyhan-gold text-sm">${state.selectedFabric.enName}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-bold text-white">انتخاب دسته بندی</h2>
+                        <p class="text-reyhan-gold text-sm mt-2">لطفا گروه مورد نظر خود را انتخاب کنید</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                        ${CATEGORIES.map((category, index) => `
+                            <div onclick="selectCategory('${category.id}')" 
+                                 class="group relative h-96 rounded-3xl overflow-hidden cursor-pointer border-2 ${category.border} hover:border-reyhan-gold transition-all duration-500 hover:-translate-y-2 animate-slide-up"
+                                 style="animation-delay: ${index * 0.2}s">
+                                <img src="${state.selectedFabric.categoryImages[category.id]}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 cursor-pointer"
+                                     onclick="event.stopPropagation(); openImageViewer(['${state.selectedFabric.categoryImages[category.id]}'], 0, '${state.selectedFabric.name} - ${category.label}')">
+                                <div class="absolute inset-0 ${category.color} opacity-60"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-reyhan-green to-transparent opacity-70"></div>
+                                
+                                <div class="absolute bottom-0 left-0 right-0 p-8 text-center">
+                                    <h3 class="text-2xl font-bold text-white">${category.label}</h3>
+                                    <p class="text-reyhan-gold text-sm mt-2">${category.enLabel}</p>
+                                    <p class="text-white/80 text-xs mt-3">${category.desc}</p>
+                                    <div class="mt-4 inline-flex items-center gap-2 text-reyhan-gold bg-reyhan-gold/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                                        <span>انتخاب</span>
+                                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Back Button -->
+                    <div class="text-center mt-12">
+                        <button onclick="navigateTo('form')" 
+                                class="inline-flex items-center gap-2 px-6 py-3 border-2 border-reyhan-gold/50 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/10 transition-all backdrop-blur-sm">
+                            <i data-lucide="arrow-right"></i>
+                            بازگشت به فرم
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            return el;
+        }
+
+        window.selectCategory = (categoryId) => {
+            state.selectedCategory = categoryId;
+
+            if (state.userData.name && state.userData.phone) {
+                const customers = db.getAllCustomers();
+                const latestCustomer = customers.find(c =>
+                    c.name === state.userData.name &&
+                    c.phone === state.userData.phone
+                );
+
+                if (latestCustomer) {
+                    const index = db.customers.findIndex(c => c.id === latestCustomer.id);
+                    if (index !== -1) {
+                        db.customers[index].category = categoryId;
+                        db.saveToStorage();
+                    }
+                }
+            }
+
+            setTimeout(() => {
+                navigateTo('gallery');
+            }, 300);
+        };
+
+        // View 5: Gallery/Showroom
+        function createGalleryView() {
+            const category = CATEGORIES.find(c => c.id === state.selectedCategory);
+            const images = getGalleryImages(state.selectedFabric.id, state.selectedCategory);
+
+            const el = document.createElement('div');
+            el.className = 'min-h-screen animate-fade-in bg-green-gradient';
+            el.innerHTML = `
+                <div class="pt-20 pb-12 px-4">
+                    <!-- Header -->
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-bold text-white">نمایشگاه ${category.label}</h2>
+                        <p class="text-reyhan-gold text-sm mt-2">طراحی‌های زیبا با پارچه ${state.selectedFabric.name}</p>
+                        ${images.length > 0 ? `
+                            <p class="text-gray-300 text-sm mt-1">روی هر تصویر کلیک کنید برای مشاهده در سایز بزرگ</p>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Gallery Grid -->
+                    ${images.length > 0 ? `
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                            ${images.map((image, index) => `
+                                <div class="group relative rounded-2xl overflow-hidden border-2 border-reyhan-gold/20 hover:border-reyhan-gold transition-all duration-500 animate-slide-up backdrop-blur-sm cursor-pointer" 
+                                     style="animation-delay: ${index * 0.1}s"
+                                     onclick="openImageViewer(${JSON.stringify(images)}, ${index}, '${state.selectedFabric.name} - ${category.label}')">
+                                    <img src="${image}" 
+                                         class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
+                                        <span class="text-white font-bold">طراحی شماره ${index + 1}</span>
+                                        <i data-lucide="zoom-in" class="w-5 h-5 text-reyhan-gold mr-2"></i>
+                                    </div>
+                                    <div class="absolute top-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                                        ${index + 1}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : `
+                        <div class="text-center py-16 glass-panel rounded-2xl max-w-md mx-auto">
+                            <i data-lucide="image-off" class="w-16 h-16 text-reyhan-gold/50 mx-auto mb-4"></i>
+                            <p class="text-gray-300">تصویری برای این دسته‌بندی موجود نیست</p>
+                        </div>
+                    `}
+                    
+                    <!-- Action Buttons -->
+                    <div class="max-w-md mx-auto mt-16">
+                        <div class="glass-panel rounded-2xl p-8 text-center backdrop-blur-xl">
+                            <div class="w-16 h-16 bg-gradient-to-br from-reyhan-gold to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
+                                <i data-lucide="check" class="w-8 h-8 text-reyhan-dark"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-4">سفارش شما آماده است!</h3>
+                            <p class="text-gray-300 mb-8">
+                                پارچه <span class="text-reyhan-gold font-bold">${state.selectedFabric.name}</span><br>
+                                برای گروه <span class="text-reyhan-gold font-bold">${category.label}</span>
+                            </p>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="goBackToLanding()" 
+                                        class="py-3 px-4 border-2 border-reyhan-gold/50 text-reyhan-gold rounded-lg font-bold hover:bg-reyhan-gold/10 transition-all backdrop-blur-sm">
+                                    بازگشت
+                                </button>
+                                <button onclick="finishOrder()" 
+                                        class="py-3 px-4 btn-gold rounded-lg font-bold">
+                                    تکمیل سفارش
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return el;
+        }
+
+        window.goBackToLanding = () => {
+            state.userData = { name: '', phone: '', instagram: '' };
+            state.selectedFabric = null;
+            state.selectedCategory = null;
+            navigateTo('landing');
+        };
+
+        window.finishOrder = () => {
+            showNotification('سفارش شما با موفقیت ثبت شد!', 'success');
+
+            const successOverlay = document.createElement('div');
+            successOverlay.className = 'fixed inset-0 z-50 bg-reyhan-green/95 flex flex-col items-center justify-center animate-fade-in';
+            successOverlay.innerHTML = `
+                <div class="text-center">
+                    <div class="w-32 h-32 bg-gradient-to-br from-reyhan-gold to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-8 animate-float">
+                        <i data-lucide="check" class="w-16 h-16 text-reyhan-dark"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-white mb-4">با تشکر از شما</h2>
+                    <p class="text-reyhan-gold text-lg">سفارش شما ثبت و به واحد فروش ارسال شد</p>
+                </div>
+            `;
+            document.body.appendChild(successOverlay);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                successOverlay.remove();
+                goBackToLanding();
+            }, 2500);
+        };
+
+        // View 6: Enhanced Admin Panel
+        function createEnhancedAdminView() {
+            const customers = db.getAllCustomers();
+
+            const el = document.createElement('div');
+            el.className = 'min-h-screen bg-gray-100 p-4 animate-fade-in';
+            el.innerHTML = `
+                <div class="max-w-7xl mx-auto">
+                    <!-- Admin Header -->
+                    <div class="bg-reyhan-green rounded-2xl p-6 mb-6 shadow-xl">
+                        <div class="flex flex-col md:flex-row justify-between items-center">
+                            <div class="text-center md:text-right mb-4 md:mb-0">
+                                <h2 class="text-2xl font-bold text-white">پنل مدیریت REYHANTEX</h2>
+                                <p class="text-reyhan-gold text-sm mt-1">تعداد رکوردها: ${customers.length}</p>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-3">
+                                <button onclick="exportToExcel()" 
+                                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    خروجی Excel
+                                </button>
+                                <button onclick="changeLogo()" 
+                                        class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl">
+                                    <i data-lucide="image" class="w-4 h-4"></i>
+                                    تغییر لوگو
+                                </button>
+                                <button onclick="manageFabricImages()" 
+                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl">
+                                    <i data-lucide="images" class="w-4 h-4"></i>
+                                    مدیریت تصاویر پارچه
+                                </button>
+                                <button onclick="clearDatabase()" 
+                                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    پاک کردن همه
+                                </button>
+                                <button onclick="navigateTo('landing')" 
+                                        class="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl">
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    بازگشت
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Logo Preview -->
+                    <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">لوگوی فعلی</h3>
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <div class="w-40 h-40 rounded-full overflow-hidden border-4 border-reyhan-gold/30">
+                                <img src="${CONFIG.logoImage}" 
+                                     alt="Current Logo" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-gray-600 mb-4">برای تغییر لوگو، روی دکمه "تغییر لوگو" کلیک کنید و لینک تصویر جدید را وارد نمایید.</p>
+                                <div class="text-sm text-gray-500">
+                                    <i data-lucide="info" class="w-4 h-4 inline ml-1"></i>
+                                    لوگو باید تصویر مربع یا دایره باشد (نسبت 1:1)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fabric Images Management Preview -->
+                    <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">تصاویر پارچه‌ها</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-right font-bold text-gray-700">پارچه</th>
+                                        <th class="px-4 py-3 text-right font-bold text-gray-700">تصویر آقایان</th>
+                                        <th class="px-4 py-3 text-right font-bold text-gray-700">تصویر بانوان</th>
+                                        <th class="px-4 py-3 text-right font-bold text-gray-700">تصویر کودکان</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${FABRICS.map(fabric => `
+                                        <tr class="border-b border-gray-100">
+                                            <td class="px-4 py-3 font-bold text-gray-800">${fabric.name}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="w-20 h-20 rounded overflow-hidden border">
+                                                    <img src="${fabric.categoryImages.male}" class="w-full h-full object-cover" alt="Male">
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="w-20 h-20 rounded overflow-hidden border">
+                                                    <img src="${fabric.categoryImages.female}" class="w-full h-full object-cover" alt="Female">
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="w-20 h-20 rounded overflow-hidden border">
+                                                    <img src="${fabric.categoryImages.children}" class="w-full h-full object-cover" alt="Child">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Customers Table -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-4 text-right font-bold text-gray-700">تاریخ</th>
+                                        <th class="px-6 py-4 text-right font-bold text-gray-700">نام</th>
+                                        <th class="px-6 py-4 text-right font-bold text-gray-700">تلفن</th>
+                                        <th class="px-6 py-4 text-right font-bold text-gray-700">اینستاگرام</th>
+                                        <th class="px-6 py-4 text-right font-bold text-gray-700">پارچه</th>
+                                        <th class="px-6 py-4 text-right font-bold text-gray-700">دسته</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    ${customers.length ? customers.map(customer => `
+                                        <tr class="hover:bg-yellow-50 transition-colors">
+                                            <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${new Date(customer.timestamp).toLocaleString('fa-IR')}</td>
+                                            <td class="px-6 py-4 font-bold text-gray-800">${customer.name}</td>
+                                            <td class="px-6 py-4 text-gray-700 dir-ltr text-left">${customer.phone}</td>
+                                            <td class="px-6 py-4 text-gray-600">${customer.instagram || '-'}</td>
+                                            <td class="px-6 py-4 font-bold text-reyhan-green">${customer.fabric}</td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-2 py-1 rounded-full text-xs ${customer.category === 'male' ? 'bg-blue-100 text-blue-800' :
+                    customer.category === 'female' ? 'bg-pink-100 text-pink-800' :
+                        customer.category === 'children' ? 'bg-purple-100 text-purple-800' :
+                            'bg-gray-100 text-gray-800'
+                }">
+                                                    ${customer.category ? CATEGORIES.find(c => c.id === customer.category)?.label : '-'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `).join('') : `
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                                <i data-lucide="database" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                                                <p>هیچ رکوردی یافت نشد</p>
+                                            </td>
+                                        </tr>
+                                    `}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return el;
+        }
+
+        // Admin Functions
+        window.changeLogo = () => {
+            const newLogoUrl = prompt('لطفا لینک تصویر جدید لوگو را وارد کنید:', CONFIG.logoImage);
+            if (newLogoUrl && newLogoUrl.trim() !== '') {
+                try {
+                    new URL(newLogoUrl);
+                    CONFIG.logoImage = newLogoUrl.trim();
+                    localStorage.setItem('reyhantex_logo', newLogoUrl.trim());
+                    showNotification('لوگو با موفقیت تغییر کرد', 'success');
+                    render();
+                } catch (e) {
+                    showNotification('لینک وارد شده معتبر نیست', 'error');
+                }
+            }
+        };
+
+        window.manageFabricImages = () => {
+            const fabricList = FABRICS.map(f => `${f.id}. ${f.name}`).join('\n');
+            const fabricId = prompt(`لطفا شماره پارچه را برای ویرایش تصاویر انتخاب کنید:\n${fabricList}`);
+
+            if (!fabricId) return;
+
+            const fabric = FABRICS.find(f => f.id === parseInt(fabricId));
+            if (!fabric) {
+                showNotification('شماره پارچه نامعتبر است', 'error');
+                return;
+            }
+
+            const currentMale = fabric.categoryImages.male;
+            const currentFemale = fabric.categoryImages.female;
+            const currentChild = fabric.categoryImages.children;
+
+            const newMale = prompt(`لینک تصویر جدید برای آقایان (${fabric.name}):`, currentMale);
+            const newFemale = prompt(`لینک تصویر جدید برای بانوان (${fabric.name}):`, currentFemale);
+            const newChild = prompt(`لینک تصویر جدید برای کودکان (${fabric.name}):`, currentChild);
+
+            if (newMale) {
+                try {
+                    new URL(newMale);
+                    fabric.categoryImages.male = newMale;
+                } catch (e) {
+                    showNotification('لینک تصویر آقایان نامعتبر است', 'error');
+                }
+            }
+
+            if (newFemale) {
+                try {
+                    new URL(newFemale);
+                    fabric.categoryImages.female = newFemale;
+                } catch (e) {
+                    showNotification('لینک تصویر بانوان نامعتبر است', 'error');
+                }
+            }
+
+            if (newChild) {
+                try {
+                    new URL(newChild);
+                    fabric.categoryImages.children = newChild;
+                } catch (e) {
+                    showNotification('لینک تصویر کودکان نامعتبر است', 'error');
+                }
+            }
+
+            localStorage.setItem('reyhantex_fabric_images', JSON.stringify(FABRICS));
+            showNotification('تصاویر پارچه با موفقیت به‌روزرسانی شد', 'success');
+            render();
+        };
+
+        window.exportToExcel = () => {
+            const customers = db.getAllCustomers();
+            if (customers.length === 0) {
+                showNotification('داده‌ای برای خروجی وجود ندارد', 'warning');
+                return;
+            }
+
+            try {
+                const data = customers.map(c => ({
+                    'تاریخ': new Date(c.timestamp).toLocaleString('fa-IR'),
+                    'نام': c.name,
+                    'تلفن': c.phone,
+                    'اینستاگرام': c.instagram || '-',
+                    'پارچه': c.fabric,
+                    'دسته بندی': c.category ? CATEGORIES.find(cat => cat.id === c.category)?.label : '-'
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "مشتریان");
+
+                const date = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `reyhantex_customers_${date}.xlsx`);
+
+                showNotification('فایل Excel با موفقیت تولید شد', 'success');
+            } catch (error) {
+                console.error('Export error:', error);
+                showNotification('خطا در تولید فایل', 'error');
+            }
+        };
+
+        window.clearDatabase = () => {
+            if (confirm('آیا مطمئن هستید که می‌خواهید تمام داده‌ها را پاک کنید؟')) {
+                db.clearAll();
+                showNotification('همه داده‌ها پاک شدند', 'success');
+                setTimeout(() => render(), 1000);
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load saved fabric images from localStorage
+            const savedFabricImages = localStorage.getItem('reyhantex_fabric_images');
+            if (savedFabricImages) {
+                try {
+                    const parsed = JSON.parse(savedFabricImages);
+                    parsed.forEach(savedFabric => {
+                        const fabric = FABRICS.find(f => f.id === savedFabric.id);
+                        if (fabric && savedFabric.categoryImages) {
+                            fabric.categoryImages = savedFabric.categoryImages;
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error loading saved fabric images:', e);
+                }
+            }
+
+            render();
+
+            // Add sample data if empty
+            if (db.getAllCustomers().length === 0) {
+                db.addCustomer({
+                    name: 'احمد محمدی',
+                    phone: '09121234567',
+                    instagram: 'ahmad',
+                    fabric: 'ریحانا',
+                    category: 'male'
+                });
+                db.addCustomer({
+                    name: 'فاطمه کریمی',
+                    phone: '09129876543',
+                    instagram: 'fatemeh',
+                    fabric: 'پفکی (ینزی)',
+                    category: 'female'
+                });
+            }
+        });
+
+    </script>
+</body>
+
+</html>
