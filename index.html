@@ -173,6 +173,117 @@
             border-color: rgba(212, 175, 55, 0.8);
         }
 
+        /* Tag Styles */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 20px;
+            font-size: 12px;
+            color: #f3e5ab;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .tag:hover {
+            background: rgba(212, 175, 55, 0.25);
+            border-color: rgba(212, 175, 55, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .tag.active {
+            background: rgba(212, 175, 55, 0.4);
+            border-color: #d4af37;
+            font-weight: bold;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .tag-remove:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .tag-input {
+            min-width: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .tag-input:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+
+        .image-tag-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #f3e5ab;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            z-index: 10;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .image-tag-badge:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.05);
+        }
+
+        .image-tags-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .image-container:hover .image-tags-overlay {
+            opacity: 1;
+        }
+
+        .quick-tag-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(212, 175, 55, 0.9);
+            color: #002521;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            z-index: 10;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .image-container:hover .quick-tag-btn {
+            opacity: 1;
+        }
+
+        .quick-tag-btn:hover {
+            background: #d4af37;
+            transform: scale(1.05);
+        }
+
         @media (max-width: 768px) {
             .preview-grid {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -208,6 +319,7 @@
          * 1. Simple image opening in new tab
          * 2. Admin panel for uploading images from any device
          * 3. Random image showcase on landing page
+         * 4. Enhanced tag management system
          */
 
         const CONFIG = {
@@ -285,132 +397,168 @@
             },
         ];
 
-        // Gallery images - will be loaded from localStorage
+        // Gallery images - will be loaded from localStorage with tags
         let GALLERY_IMAGES = {
             reyhana_male: [],
             reyhana_female: [
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 03_47_37 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 03_47_37 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 03_56_47 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_21_13 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_34_23 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_48_54 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_54_43 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_16_15 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_31_05 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_44_24 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_00_18 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_07_00 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_09_06 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_11_10 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_39_41 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_51_18 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_51_28 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_51_30 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 10_58_39 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_03_33 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_04_47 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_07_46 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_09_06 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_14_13 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_16_50 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_40_54 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_40_59 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_41_05 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 11_45_50 AM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 12_44_18 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 12_49_36 PM.png',
-                'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 12_57_26 PM.png',
+                { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 03_47_37 PM.png', tags: ['شیک', 'مجلسی', 'تابستانی'] },
+                { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 03_56_47 PM.png', tags: ['ساده', 'رسمی'] },
+                { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_21_13 PM.png', tags: ['مجلسی', 'عروس'] },
+                { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_34_23 PM.png', tags: ['شیک', 'مدرن'] },
+                { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_48_54 PM.png', tags: ['ساده', 'رسمی'] },
             ],
             reyhana_children: [
-                'assets/fabric/reyhana/children/1770015636848.png',
-                'assets/fabric/reyhana/children/1770015672874.png',
-                'assets/fabric/reyhana/children/1770015701234.png',
-                'assets/fabric/reyhana/children/1770015729556.png',
-                'assets/fabric/reyhana/children/1770015790133.png',
-                'assets/fabric/reyhana/children/1770015819565.png',
-                'assets/fabric/reyhana/children/1770015902789.png',
-                'assets/fabric/reyhana/children/Gemini_Generated_Image_7h6gic7h6gic7h6g.png',
-                'assets/fabric/reyhana/children/Gemini_Generated_Image_t2d95kt2d95kt2d9.png',
-                'assets/fabric/reyhana/children/Gemini_Generated_Image_tl4g8ntl4g8ntl4g.png',
-                'assets/fabric/reyhana/children/Gemini_Generated_Image_uw4e96uw4e96uw4e.png',
-                'assets/fabric/reyhana/children/Gemini_Generated_Image_uxyx4huxyx4huxyx.png',
-                'assets/fabric/reyhana/children/Gemini_Generated_Image_vpzgcuvpzgcuvpzg.png',
+                { url: 'assets/fabric/reyhana/children/1770015636848.png', tags: ['بچگانه', 'شاد'] },
+                { url: 'assets/fabric/reyhana/children/1770015672874.png', tags: ['بچگانه', 'ساده'] },
+                { url: 'assets/fabric/reyhana/children/1770015701234.png', tags: ['بچگانه', 'رنگارنگ'] },
+                { url: 'assets/fabric/reyhana/children/1770015729556.png', tags: ['بچگانه'] },
             ],
             pofaki_male: [],
             pofaki_female: [
-                'assets/fabric/pofaki/female/1765890467695.jpg',
-                'assets/fabric/pofaki/female/1769515671229.png',
-                'assets/fabric/pofaki/female/1770018110135.png',
-                'assets/fabric/pofaki/female/1770018306729.png',
-                'assets/fabric/pofaki/female/1770018459064.png',
-                'assets/fabric/pofaki/female/1770018531854.png',
-                'assets/fabric/pofaki/female/1770018604231.png',
-                'assets/fabric/pofaki/female/1770019000539.png',
-                'assets/fabric/pofaki/female/1770019009600.png',
-                'assets/fabric/pofaki/female/1770019015979.png',
-                'assets/fabric/pofaki/female/1770019097905.png',
-                'assets/fabric/pofaki/female/1770019378929.png',
-                'assets/fabric/pofaki/female/1770039550790.png',
-                'assets/fabric/pofaki/female/1770040588723.png',
-                'assets/fabric/pofaki/female/1770040773855.png',
-                'assets/fabric/pofaki/female/ChatGPT Image Jan 29, 2026, 01_24_26 PM.png',
-                'assets/fabric/pofaki/female/Gemini_Generated_Image_e8l0qte8l0qte8l0.png',
-                'assets/fabric/pofaki/female/Gemini_Generated_Image_hh71tchh71tchh71.png',
-                'assets/fabric/pofaki/female/Gemini_Generated_Image_ncrt8kncrt8kncrt.png',
-                'assets/fabric/pofaki/female/Gemini_Generated_Image_uvdm5xuvdm5xuvdm.png',
-                'assets/fabric/pofaki/female/Gemini_Generated_Image_v68zczv68zczv68z.png',
-                'assets/fabric/pofaki/female/Gemini_Generated_Image_xr7tgcxr7tgcxr7t.png',
-                'assets/fabric/pofaki/female/Gemini_Generated_Image_xup0yjxup0yjxup0.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151219.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151242.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151312.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151331.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151358.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151415.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151445.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151509.png',
-                'assets/fabric/pofaki/female/IMG_20260202_151535.png',
+                { url: 'assets/fabric/pofaki/female/1765890467695.jpg', tags: ['شیک', 'مجلسی'] },
+                { url: 'assets/fabric/pofaki/female/1769515671229.png', tags: ['ساده', 'رسمی'] },
+                { url: 'assets/fabric/pofaki/female/1770018110135.png', tags: ['مجلسی', 'عروس'] },
+                { url: 'assets/fabric/pofaki/female/1770018306729.png', tags: ['شیک', 'مدرن'] },
             ],
             pofaki_children: [
-                'assets/fabric/pofaki/children/1770110218507.png',
-                'assets/fabric/pofaki/children/1770110370256.png',
-                'assets/fabric/pofaki/children/1770110482376.png',
-                'assets/fabric/pofaki/children/1770110706577.png',
-                'assets/fabric/pofaki/children/1770112752571.png',
-                'assets/fabric/pofaki/children/1770112977067.png',
-                'assets/fabric/pofaki/children/1770113555664.png',
-                'assets/fabric/pofaki/children/1770114116695.png',
-                'assets/fabric/pofaki/children/1770114208083.png',
-                'assets/fabric/pofaki/children/1770114262292.png',
-                'assets/fabric/pofaki/children/1770114327122.png',
-                'assets/fabric/pofaki/children/1770114379835.png',
-                'assets/fabric/pofaki/children/1770114439797.png',
-                'assets/fabric/pofaki/children/1770114487477.png',
-                'assets/fabric/pofaki/children/1770114543076.png',
+                { url: 'assets/fabric/pofaki/children/1770110218507.png', tags: ['بچگانه', 'رنگارنگ'] },
+                { url: 'assets/fabric/pofaki/children/1770110370256.png', tags: ['بچگانه', 'شاد'] },
+                { url: 'assets/fabric/pofaki/children/1770110482376.png', tags: ['بچگانه', 'ساده'] },
+                { url: 'assets/fabric/pofaki/children/1770110706577.png', tags: ['بچگانه'] },
             ],
             selina_male: [
-                'assets/fabric/selina/male/1770109002011.png',
-                'assets/fabric/selina/male/1770109219087.png',
-                'assets/fabric/selina/male/1770109237763.png',
-                'assets/fabric/selina/male/1770109404605.png',
-                'assets/fabric/selina/male/1770109459483.png',
-                'assets/fabric/selina/male/1770109780407.png',
+                { url: 'assets/fabric/selina/male/1770109002011.png', tags: ['رسمی', 'کلاسیک'] },
+                { url: 'assets/fabric/selina/male/1770109219087.png', tags: ['مجلسی', 'شیک'] },
+                { url: 'assets/fabric/selina/male/1770109237763.png', tags: ['ساده', 'رسمی'] },
+                { url: 'assets/fabric/selina/male/1770109404605.png', tags: ['کلاسیک'] },
             ],
             selina_female: [
-                'assets/fabric/selina/female/1765869607872.jpg',
-                'assets/fabric/selina/female/1765891532899.jpg',
-                'assets/fabric/selina/female/1770040351354.png',
-                'assets/fabric/selina/female/1770040832256.png',
-                'assets/fabric/selina/female/1770106262449.png',
-                'assets/fabric/selina/female/1770106289197.png',
-                'assets/fabric/selina/female/1770106315164.png',
-                'assets/fabric/selina/female/1770108523837.png',
-                'assets/fabric/selina/female/1770108637157.png',
-                'assets/fabric/selina/female/1770108723545.png',
+                { url: 'assets/fabric/selina/female/1765869607872.jpg', tags: ['شیک', 'مجلسی'] },
+                { url: 'assets/fabric/selina/female/1765891532899.jpg', tags: ['ساده', 'رسمی'] },
+                { url: 'assets/fabric/selina/female/1770040351354.png', tags: ['مجلسی', 'عروس'] },
+                { url: 'assets/fabric/selina/female/1770040832256.png', tags: ['شیک', 'مدرن'] },
             ],
             selina_children: [],
         };
+
+        // Tag Management System
+        let TAGS_DB = {
+            allTags: new Set(['شیک', 'مجلسی', 'ساده', 'رسمی', 'مدرن', 'عروس', 'تابستانی', 'بچگانه', 'شاد', 'رنگارنگ', 'کلاسیک']),
+            imageTags: {} // imageUrl -> [tags]
+        };
+
+        // Initialize tags from gallery images
+        function initializeTags() {
+            TAGS_DB.allTags.clear();
+            TAGS_DB.imageTags = {};
+
+            // Extract tags from all images
+            Object.values(GALLERY_IMAGES).forEach(categoryImages => {
+                categoryImages.forEach(imageData => {
+                    if (imageData.tags && Array.isArray(imageData.tags)) {
+                        TAGS_DB.imageTags[imageData.url] = [...imageData.tags];
+                        imageData.tags.forEach(tag => TAGS_DB.allTags.add(tag));
+                    }
+                });
+            });
+
+            saveTagsToStorage();
+        }
+
+        function saveTagsToStorage() {
+            localStorage.setItem('reyhantex_tags', JSON.stringify({
+                allTags: Array.from(TAGS_DB.allTags),
+                imageTags: TAGS_DB.imageTags
+            }));
+        }
+
+        function loadTagsFromStorage() {
+            const savedTags = localStorage.getItem('reyhantex_tags');
+            if (savedTags) {
+                try {
+                    const parsed = JSON.parse(savedTags);
+                    TAGS_DB.allTags = new Set(parsed.allTags || []);
+                    TAGS_DB.imageTags = parsed.imageTags || {};
+
+                    // Update gallery images with saved tags
+                    Object.values(GALLERY_IMAGES).forEach(categoryImages => {
+                        categoryImages.forEach(imageData => {
+                            if (TAGS_DB.imageTags[imageData.url]) {
+                                imageData.tags = TAGS_DB.imageTags[imageData.url];
+                            }
+                        });
+                    });
+                } catch (e) {
+                    console.error('Error loading tags:', e);
+                }
+            }
+        }
+
+        function addTagToImage(imageUrl, tag) {
+            if (!TAGS_DB.imageTags[imageUrl]) {
+                TAGS_DB.imageTags[imageUrl] = [];
+            }
+
+            if (!TAGS_DB.imageTags[imageUrl].includes(tag)) {
+                TAGS_DB.imageTags[imageUrl].push(tag);
+                TAGS_DB.allTags.add(tag);
+
+                // Update the image data in gallery
+                Object.values(GALLERY_IMAGES).forEach(categoryImages => {
+                    const image = categoryImages.find(img => img.url === imageUrl);
+                    if (image) {
+                        image.tags = TAGS_DB.imageTags[imageUrl];
+                    }
+                });
+
+                saveTagsToStorage();
+                return true;
+            }
+            return false;
+        }
+
+        function removeTagFromImage(imageUrl, tag) {
+            if (TAGS_DB.imageTags[imageUrl]) {
+                const index = TAGS_DB.imageTags[imageUrl].indexOf(tag);
+                if (index > -1) {
+                    TAGS_DB.imageTags[imageUrl].splice(index, 1);
+
+                    // Update the image data in gallery
+                    Object.values(GALLERY_IMAGES).forEach(categoryImages => {
+                        const image = categoryImages.find(img => img.url === imageUrl);
+                        if (image) {
+                            image.tags = TAGS_DB.imageTags[imageUrl];
+                        }
+                    });
+
+                    saveTagsToStorage();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function getImagesByTag(tag) {
+            const results = [];
+
+            Object.entries(GALLERY_IMAGES).forEach(([category, images]) => {
+                images.forEach(imageData => {
+                    if (imageData.tags && imageData.tags.includes(tag)) {
+                        results.push({
+                            url: imageData.url,
+                            category: category,
+                            tags: imageData.tags
+                        });
+                    }
+                });
+            });
+
+            return results;
+        }
+
+        function getAllTags() {
+            return Array.from(TAGS_DB.allTags).sort();
+        }
 
         // SIMPLE FUNCTION TO OPEN IMAGE IN NEW TAB
         function openImageInNewTab(imageUrl) {
@@ -429,7 +577,8 @@
             ];
 
             if (allImages.length > 0) {
-                return allImages[Math.floor(Math.random() * allImages.length)];
+                const randomImage = allImages[Math.floor(Math.random() * allImages.length)];
+                return randomImage.url;
             }
 
             // Fallback to default image if no gallery images
@@ -439,16 +588,21 @@
         // Helper function to get all images for a fabric
         function getAllImagesForFabric(fabricId) {
             const fabricName = getFabricNameById(fabricId);
-            return [
+            const images = [
                 ...(GALLERY_IMAGES[`${fabricName}_male`] || []),
                 ...(GALLERY_IMAGES[`${fabricName}_female`] || []),
                 ...(GALLERY_IMAGES[`${fabricName}_children`] || [])
             ];
+            return images.map(img => img.url);
         }
 
         // Image Management Functions
         function saveImagesToStorage() {
-            localStorage.setItem('reyhantex_gallery_images', JSON.stringify(GALLERY_IMAGES));
+            const imagesToSave = {};
+            Object.keys(GALLERY_IMAGES).forEach(key => {
+                imagesToSave[key] = GALLERY_IMAGES[key];
+            });
+            localStorage.setItem('reyhantex_gallery_images', JSON.stringify(imagesToSave));
         }
 
         function loadImagesFromStorage() {
@@ -460,9 +614,12 @@
                     Object.keys(parsed).forEach(key => {
                         if (GALLERY_IMAGES[key]) {
                             // Add only new images that don't already exist
-                            parsed[key].forEach(img => {
-                                if (!GALLERY_IMAGES[key].includes(img)) {
-                                    GALLERY_IMAGES[key].push(img);
+                            parsed[key].forEach(imgData => {
+                                const exists = GALLERY_IMAGES[key].some(existingImg =>
+                                    existingImg.url === imgData.url
+                                );
+                                if (!exists) {
+                                    GALLERY_IMAGES[key].push(imgData);
                                 }
                             });
                         } else {
@@ -504,13 +661,17 @@
 
                     reader.onload = function (e) {
                         const imageUrl = e.target.result;
-                        GALLERY_IMAGES[key].push(imageUrl);
+                        const imageData = {
+                            url: imageUrl,
+                            tags: []
+                        };
+                        GALLERY_IMAGES[key].push(imageData);
 
                         saveImagesToStorage();
                         showNotification(`تصویر ${categoryLabel} با موفقیت آپلود شد`, 'success');
 
                         // Refresh view if we're in admin panel
-                        if (state.view === 'admin' || state.view === 'imageUpload') {
+                        if (state.view === 'admin' || state.view === 'imageUpload' || state.view === 'tagManager') {
                             render();
                         }
                     };
@@ -572,6 +733,19 @@
                 selectedFabric: null,
                 selectedCategory: null,
                 uploadedImages: []
+            },
+            tagSearchState: {
+                isOpen: false,
+                searchQuery: '',
+                searchResults: [],
+                selectedTag: null
+            },
+            tagManagerState: {
+                isOpen: false,
+                selectedFabric: null,
+                selectedCategory: null,
+                selectedImage: null,
+                bulkTags: []
             }
         };
 
@@ -621,10 +795,730 @@
             `;
         }
 
+        // Tag Search Modal
+        function createTagSearchModal() {
+            if (!state.tagSearchState.isOpen) return '';
+
+            const allTags = getAllTags();
+            const filteredTags = allTags.filter(tag =>
+                tag.includes(state.tagSearchState.searchQuery)
+            );
+
+            return `
+                <div class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 animate-fade-in">
+                    <div class="bg-reyhan-green rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden border border-reyhan-gold/30">
+                        <div class="p-6 border-b border-reyhan-gold/20">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-white">جستجوی تگ</h3>
+                                <button onclick="closeTagSearch()" class="text-reyhan-gold hover:text-reyhan-goldLight">
+                                    <i data-lucide="x" class="w-6 h-6"></i>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <input type="text"
+                                       id="tagSearchInput"
+                                       class="w-full px-4 py-3 bg-reyhan-dark/50 border border-reyhan-gold/30 rounded-lg text-white placeholder-gray-400"
+                                       placeholder="جستجوی تگ..."
+                                       value="${state.tagSearchState.searchQuery}"
+                                       oninput="updateTagSearch(event)">
+                                <i data-lucide="search" class="absolute left-3 top-3.5 w-5 h-5 text-reyhan-gold/50"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 overflow-y-auto max-h-[50vh]">
+                            ${filteredTags.length > 0 ? `
+                                <div class="flex flex-wrap gap-2 mb-6">
+                                    ${filteredTags.map(tag => `
+                                        <button onclick="searchByTag('${tag}')"
+                                                class="tag ${state.tagSearchState.selectedTag === tag ? 'active' : ''}">
+                                            ${tag}
+                                            <span class="text-xs text-reyhan-goldLight">(${getImagesByTag(tag).length})</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            ` : `
+                                <div class="text-center py-8 text-gray-400">
+                                    <i data-lucide="tag" class="w-12 h-12 mx-auto mb-4"></i>
+                                    <p>تگی یافت نشد</p>
+                                </div>
+                            `}
+                            
+                            ${state.tagSearchState.selectedTag ? `
+                                <div class="mt-6">
+                                    <h4 class="text-lg font-bold text-white mb-4">
+                                        تصاویر با تگ "${state.tagSearchState.selectedTag}"
+                                        <span class="text-reyhan-gold text-sm">(${state.tagSearchState.searchResults.length} تصویر)</span>
+                                    </h4>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        ${state.tagSearchState.searchResults.map((img, index) => {
+                const fabricName = img.category.split('_')[0];
+                const categoryName = img.category.split('_')[1];
+                const fabric = FABRICS.find(f => getFabricNameById(f.id) === fabricName);
+                const category = CATEGORIES.find(c => c.id === categoryName);
+                return `
+                                            <div class="relative rounded-lg overflow-hidden border border-reyhan-gold/20 group cursor-pointer image-container">
+                                                <img src="${img.url}" class="w-full h-32 object-cover">
+                                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                                                    <div class="text-white text-xs">
+                                                        ${fabric ? fabric.name : fabricName} - ${category ? category.label : categoryName}
+                                                    </div>
+                                                </div>
+                                                <div class="image-tags-overlay">
+                                                    ${img.tags && img.tags.length > 0 ? `
+                                                        <div class="flex flex-wrap gap-1 justify-center">
+                                                            ${img.tags.map(tag => `<span class="text-xs bg-reyhan-gold/30 px-2 py-1 rounded">${tag}</span>`).join('')}
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                                <button onclick="openImageInNewTab('${img.url}')" 
+                                                        class="quick-tag-btn">
+                                                    <i data-lucide="zoom-in" class="w-3 h-3"></i>
+                                                </button>
+                                            </div>
+                                        `}).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="p-6 border-t border-reyhan-gold/20">
+                            <div class="flex justify-between">
+                                <button onclick="closeTagSearch()"
+                                        class="px-4 py-2 border border-reyhan-gold/50 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/10">
+                                    بستن
+                                </button>
+                                <div class="text-sm text-reyhan-gold/70">
+                                    <i data-lucide="tags" class="w-4 h-4 inline ml-1"></i>
+                                    ${allTags.length} تگ موجود
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.openTagSearch = () => {
+            state.tagSearchState.isOpen = true;
+            state.tagSearchState.searchQuery = '';
+            state.tagSearchState.searchResults = [];
+            state.tagSearchState.selectedTag = null;
+            render();
+            setTimeout(() => {
+                const input = document.getElementById('tagSearchInput');
+                if (input) input.focus();
+            }, 100);
+        };
+
+        window.closeTagSearch = () => {
+            state.tagSearchState.isOpen = false;
+            render();
+        };
+
+        window.updateTagSearch = (event) => {
+            state.tagSearchState.searchQuery = event.target.value;
+            state.tagSearchState.selectedTag = null;
+            state.tagSearchState.searchResults = [];
+            render();
+        };
+
+        window.searchByTag = (tag) => {
+            state.tagSearchState.selectedTag = tag;
+            state.tagSearchState.searchResults = getImagesByTag(tag);
+            render();
+        };
+
+        // Enhanced Tag Manager
+        function createTagManagerView() {
+            const el = document.createElement('div');
+            el.className = 'min-h-screen bg-green-gradient p-4 animate-fade-in';
+
+            el.innerHTML = `
+                <div class="max-w-7xl mx-auto">
+                    <!-- Header -->
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-white">مدیریت تگ‌های تصاویر</h1>
+                        <p class="text-reyhan-gold">تگ‌ها را به تصاویر اضافه، حذف یا ویرایش کنید</p>
+                    </div>
+                    
+                    <!-- Fabric and Category Selection -->
+                    <div class="glass-panel rounded-2xl p-6 mb-6 backdrop-blur-xl">
+                        <h2 class="text-xl font-bold text-white mb-4">انتخاب پارچه و دسته‌بندی</h2>
+                        
+                        <!-- Fabric Selection -->
+                        <div class="mb-6">
+                            <h3 class="font-bold text-reyhan-gold mb-3">پارچه</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                ${FABRICS.map(fabric => `
+                                    <button onclick="selectFabricInTagManager(${fabric.id})"
+                                            class="p-4 rounded-lg text-center transition-all ${state.tagManagerState.selectedFabric?.id === fabric.id ?
+                    'bg-reyhan-gold text-reyhan-dark font-bold' :
+                    'bg-reyhan-dark/50 text-white hover:bg-reyhan-dark/70'}">
+                                        ${fabric.name}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <!-- Category Selection -->
+                        ${state.tagManagerState.selectedFabric ? `
+                            <div class="mb-6">
+                                <h3 class="font-bold text-reyhan-gold mb-3">دسته‌بندی</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    ${CATEGORIES.map(category => `
+                                        <button onclick="selectCategoryInTagManager('${category.id}')"
+                                                class="p-4 rounded-lg text-center transition-all ${state.tagManagerState.selectedCategory === category.id ?
+                            `${category.color} border-2 border-reyhan-gold font-bold text-white` :
+                            'bg-reyhan-dark/50 text-white hover:bg-reyhan-dark/70'}">
+                                            ${category.label}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- All Tags Quick Access -->
+                        ${state.tagManagerState.selectedFabric && state.tagManagerState.selectedCategory ? `
+                            <div class="mt-6 pt-6 border-t border-reyhan-gold/20">
+                                <h3 class="font-bold text-white mb-3">تگ‌های موجود</h3>
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    ${getAllTags().map(tag => `
+                                        <span class="tag ${state.tagManagerState.bulkTags.includes(tag) ? 'active' : ''}"
+                                              onclick="toggleBulkTag('${tag}')">
+                                            ${tag}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="text"
+                                           id="newTagInput"
+                                           class="tag-input flex-1"
+                                           placeholder="تگ جدید...">
+                                    <button onclick="addNewTagToBulk()"
+                                            class="px-4 py-2 bg-reyhan-gold/20 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/30">
+                                        افزودن تگ جدید
+                                    </button>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Image Gallery for Tag Management -->
+                    ${state.tagManagerState.selectedFabric && state.tagManagerState.selectedCategory ? `
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-bold text-white">
+                                    تصاویر ${state.tagManagerState.selectedFabric.name} - ${CATEGORIES.find(c => c.id === state.tagManagerState.selectedCategory)?.label}
+                                </h2>
+                                <div class="text-sm text-reyhan-gold">
+                                    <i data-lucide="images" class="w-4 h-4 inline ml-1"></i>
+                                    ${getGalleryImages(state.tagManagerState.selectedFabric.id, state.tagManagerState.selectedCategory).length} تصویر
+                                </div>
+                            </div>
+                            
+                            ${(() => {
+                        const images = getGalleryImages(state.tagManagerState.selectedFabric.id, state.tagManagerState.selectedCategory);
+                        if (images.length === 0) {
+                            return `
+                                        <div class="text-center py-12 glass-panel rounded-2xl">
+                                            <i data-lucide="image-off" class="w-16 h-16 text-reyhan-gold/50 mx-auto mb-4"></i>
+                                            <p class="text-gray-300">هیچ تصویری در این دسته‌بندی وجود ندارد</p>
+                                        </div>
+                                    `;
+                        }
+
+                        return `
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                        ${images.map((imageData, index) => {
+                            const imageUrl = imageData.url;
+                            const tags = imageData.tags || [];
+                            return `
+                                            <div class="relative bg-reyhan-dark/50 rounded-xl overflow-hidden border border-reyhan-gold/20 hover:border-reyhan-gold transition-all duration-300 image-container">
+                                                <img src="${imageUrl}" 
+                                                     class="w-full h-48 object-cover cursor-pointer"
+                                                     onclick="openImageInNewTab('${imageUrl}')">
+                                                
+                                                <!-- Quick Tag Buttons -->
+                                                <div class="absolute top-2 right-2 flex gap-2">
+                                                    <button onclick="openImageTagEditor('${imageUrl}')"
+                                                            class="bg-black/70 text-reyhan-gold p-2 rounded-lg hover:bg-black/90 transition-all"
+                                                            title="مدیریت تگ‌ها">
+                                                        <i data-lucide="tag" class="w-4 h-4"></i>
+                                                    </button>
+                                                    <button onclick="applyBulkTagsToImage('${imageUrl}')"
+                                                            class="bg-reyhan-gold/80 text-reyhan-dark p-2 rounded-lg hover:bg-reyhan-gold transition-all"
+                                                            title="اعمال تگ‌های انتخابی">
+                                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Image Tags -->
+                                                <div class="image-tags-overlay">
+                                                    ${tags.length > 0 ? `
+                                                        <div class="flex flex-wrap gap-1 justify-center">
+                                                            ${tags.map(tag => `
+                                                                <span class="text-xs bg-reyhan-gold/40 px-2 py-1 rounded flex items-center gap-1">
+                                                                    ${tag}
+                                                                    <i data-lucide="x" 
+                                                                       class="w-2 h-2 cursor-pointer hover:text-red-300"
+                                                                       onclick="removeTagFromImage('${imageUrl}', '${tag}')"></i>
+                                                                </span>
+                                                            `).join('')}
+                                                        </div>
+                                                    ` : `
+                                                        <p class="text-gray-400 text-xs text-center">بدون تگ</p>
+                                                    `}
+                                                </div>
+                                                
+                                                <!-- Image Number -->
+                                                <div class="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                                    ${index + 1}
+                                                </div>
+                                            </div>
+                                        `}).join('')}
+                                    </div>
+                                    
+                                    <!-- Bulk Actions -->
+                                    <div class="mt-6 glass-panel rounded-2xl p-6 backdrop-blur-xl">
+                                        <h3 class="font-bold text-white mb-4">عملیات گروهی</h3>
+                                        <div class="flex flex-wrap gap-4">
+                                            <button onclick="applyBulkTagsToAll()"
+                                                    class="px-4 py-2 bg-reyhan-gold/30 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/40 transition-all flex items-center gap-2">
+                                                <i data-lucide="check-square" class="w-4 h-4"></i>
+                                                اعمال تگ‌های انتخابی به همه تصاویر
+                                            </button>
+                                            <button onclick="clearAllTagsFromCategory()"
+                                                    class="px-4 py-2 bg-red-600/20 text-red-300 rounded-lg hover:bg-red-600/30 transition-all flex items-center gap-2">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                حذف همه تگ‌ها از این دسته
+                                            </button>
+                                            <button onclick="openBulkTagEditor()"
+                                                    class="px-4 py-2 bg-blue-600/20 text-blue-300 rounded-lg hover:bg-blue-600/30 transition-all flex items-center gap-2">
+                                                <i data-lucide="edit" class="w-4 h-4"></i>
+                                                ویرایش تگ‌های گروهی
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                    })()}
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex justify-between mt-6">
+                        <button onclick="navigateTo('admin')"
+                                class="px-6 py-3 border-2 border-reyhan-gold/50 text-reyhan-gold rounded-lg font-bold hover:bg-reyhan-gold/10 transition-all backdrop-blur-sm">
+                            بازگشت به پنل
+                        </button>
+                        
+                        ${state.tagManagerState.selectedFabric && state.tagManagerState.selectedCategory ? `
+                            <div class="flex gap-3">
+                                <button onclick="openImageUploadFromTagManager()"
+                                        class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold flex items-center gap-2 transition-all">
+                                    <i data-lucide="upload" class="w-4 h-4"></i>
+                                    آپلود تصاویر جدید
+                                </button>
+                                <button onclick="exportTagsReport()"
+                                        class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold flex items-center gap-2 transition-all">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    خروجی گزارش تگ‌ها
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            return el;
+        }
+
+        // Tag Manager Functions
+        window.openTagManager = () => {
+            state.view = 'tagManager';
+            state.tagManagerState = {
+                isOpen: true,
+                selectedFabric: null,
+                selectedCategory: null,
+                selectedImage: null,
+                bulkTags: []
+            };
+            render();
+        };
+
+        window.selectFabricInTagManager = (fabricId) => {
+            state.tagManagerState.selectedFabric = FABRICS.find(f => f.id === fabricId);
+            state.tagManagerState.selectedCategory = null;
+            state.tagManagerState.bulkTags = [];
+            render();
+        };
+
+        window.selectCategoryInTagManager = (categoryId) => {
+            state.tagManagerState.selectedCategory = categoryId;
+            state.tagManagerState.bulkTags = [];
+            render();
+        };
+
+        window.toggleBulkTag = (tag) => {
+            const index = state.tagManagerState.bulkTags.indexOf(tag);
+            if (index > -1) {
+                state.tagManagerState.bulkTags.splice(index, 1);
+            } else {
+                state.tagManagerState.bulkTags.push(tag);
+            }
+            render();
+        };
+
+        window.addNewTagToBulk = () => {
+            const input = document.getElementById('newTagInput');
+            if (input && input.value.trim()) {
+                const newTag = input.value.trim();
+                if (!state.tagManagerState.bulkTags.includes(newTag)) {
+                    state.tagManagerState.bulkTags.push(newTag);
+                    TAGS_DB.allTags.add(newTag);
+                    saveTagsToStorage();
+                }
+                input.value = '';
+                render();
+            }
+        };
+
+        window.applyBulkTagsToImage = (imageUrl) => {
+            if (state.tagManagerState.bulkTags.length === 0) {
+                showNotification('لطفا ابتدا تگ‌ها را انتخاب کنید', 'warning');
+                return;
+            }
+
+            let addedCount = 0;
+            state.tagManagerState.bulkTags.forEach(tag => {
+                if (addTagToImage(imageUrl, tag)) {
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                showNotification(`${addedCount} تگ به تصویر اضافه شد`, 'success');
+                render();
+            }
+        };
+
+        window.applyBulkTagsToAll = () => {
+            if (state.tagManagerState.bulkTags.length === 0) {
+                showNotification('لطفا ابتدا تگ‌ها را انتخاب کنید', 'warning');
+                return;
+            }
+
+            if (!state.tagManagerState.selectedFabric || !state.tagManagerState.selectedCategory) {
+                showNotification('لطفا پارچه و دسته‌بندی را انتخاب کنید', 'error');
+                return;
+            }
+
+            const fabricName = getFabricNameById(state.tagManagerState.selectedFabric.id);
+            const key = `${fabricName}_${state.tagManagerState.selectedCategory}`;
+            const images = GALLERY_IMAGES[key] || [];
+
+            let totalAdded = 0;
+            images.forEach(imageData => {
+                state.tagManagerState.bulkTags.forEach(tag => {
+                    if (addTagToImage(imageData.url, tag)) {
+                        totalAdded++;
+                    }
+                });
+            });
+
+            if (totalAdded > 0) {
+                showNotification(`${totalAdded} تگ به ${images.length} تصویر اضافه شد`, 'success');
+                render();
+            }
+        };
+
+        window.clearAllTagsFromCategory = () => {
+            if (!state.tagManagerState.selectedFabric || !state.tagManagerState.selectedCategory) {
+                showNotification('لطفا پارچه و دسته‌بندی را انتخاب کنید', 'error');
+                return;
+            }
+
+            if (confirm('آیا مطمئن هستید که می‌خواهید تمام تگ‌ها را از تصاویر این دسته حذف کنید؟')) {
+                const fabricName = getFabricNameById(state.tagManagerState.selectedFabric.id);
+                const key = `${fabricName}_${state.tagManagerState.selectedCategory}`;
+                const images = GALLERY_IMAGES[key] || [];
+
+                let totalRemoved = 0;
+                images.forEach(imageData => {
+                    const tags = TAGS_DB.imageTags[imageData.url] || [];
+                    tags.forEach(tag => {
+                        if (removeTagFromImage(imageData.url, tag)) {
+                            totalRemoved++;
+                        }
+                    });
+                });
+
+                if (totalRemoved > 0) {
+                    showNotification(`${totalRemoved} تگ از ${images.length} تصویر حذف شد`, 'success');
+                    render();
+                }
+            }
+        };
+
+        window.openBulkTagEditor = () => {
+            const allTags = getAllTags();
+            const tagList = allTags.map(tag => `${tag} (${getImagesByTag(tag).length})`).join('\n');
+
+            const action = prompt(`مدیریت تگ‌ها:\n1. حذف تگ\n2. تغییر نام تگ\n3. ادغام تگ‌ها\n\nعدد عملیات را وارد کنید:`);
+
+            if (action === '1') {
+                const tagToDelete = prompt(`تگ‌های موجود:\n${tagList}\n\nنام تگی که می‌خواهید حذف کنید را وارد کنید:`);
+                if (tagToDelete && allTags.includes(tagToDelete)) {
+                    if (confirm(`آیا از حذف تگ "${tagToDelete}" مطمئن هستید؟ این تگ از ${getImagesByTag(tagToDelete).length} تصویر حذف خواهد شد.`)) {
+                        // Remove tag from all images
+                        Object.keys(TAGS_DB.imageTags).forEach(imageUrl => {
+                            removeTagFromImage(imageUrl, tagToDelete);
+                        });
+                        // Remove from allTags
+                        TAGS_DB.allTags.delete(tagToDelete);
+                        saveTagsToStorage();
+                        showNotification(`تگ "${tagToDelete}" حذف شد`, 'success');
+                        render();
+                    }
+                } else if (tagToDelete) {
+                    showNotification('تگ یافت نشد', 'error');
+                }
+            } else if (action === '2') {
+                const oldTag = prompt(`تگ‌های موجود:\n${tagList}\n\nنام تگ قدیمی را وارد کنید:`);
+                if (oldTag && allTags.includes(oldTag)) {
+                    const newTag = prompt('نام جدید تگ را وارد کنید:');
+                    if (newTag && newTag.trim()) {
+                        // Update tag in all images
+                        Object.keys(TAGS_DB.imageTags).forEach(imageUrl => {
+                            if (TAGS_DB.imageTags[imageUrl].includes(oldTag)) {
+                                removeTagFromImage(imageUrl, oldTag);
+                                addTagToImage(imageUrl, newTag);
+                            }
+                        });
+                        // Update allTags
+                        TAGS_DB.allTags.delete(oldTag);
+                        TAGS_DB.allTags.add(newTag);
+                        saveTagsToStorage();
+                        showNotification(`تگ "${oldTag}" به "${newTag}" تغییر یافت`, 'success');
+                        render();
+                    }
+                } else if (oldTag) {
+                    showNotification('تگ یافت نشد', 'error');
+                }
+            } else if (action === '3') {
+                const tag1 = prompt('نام تگ اول را وارد کنید:');
+                const tag2 = prompt('نام تگ دوم را وارد کنید:');
+
+                if (tag1 && tag2 && allTags.includes(tag1) && allTags.includes(tag2)) {
+                    if (confirm(`آیا می‌خواهید تگ "${tag2}" را با "${tag1}" ادغام کنید؟`)) {
+                        // Merge tag2 into tag1
+                        Object.keys(TAGS_DB.imageTags).forEach(imageUrl => {
+                            if (TAGS_DB.imageTags[imageUrl].includes(tag2)) {
+                                removeTagFromImage(imageUrl, tag2);
+                                if (!TAGS_DB.imageTags[imageUrl].includes(tag1)) {
+                                    addTagToImage(imageUrl, tag1);
+                                }
+                            }
+                        });
+                        // Remove tag2 from allTags
+                        TAGS_DB.allTags.delete(tag2);
+                        saveTagsToStorage();
+                        showNotification(`تگ‌ها با موفقیت ادغام شدند`, 'success');
+                        render();
+                    }
+                } else {
+                    showNotification('تگ‌ها معتبر نیستند', 'error');
+                }
+            }
+        };
+
+        window.openImageTagEditor = (imageUrl) => {
+            currentEditingImage = imageUrl;
+            render();
+        };
+
+        window.openImageUploadFromTagManager = () => {
+            state.adminUploadState = {
+                selectedFabric: state.tagManagerState.selectedFabric,
+                selectedCategory: state.tagManagerState.selectedCategory,
+                uploadedImages: [],
+                tags: [...state.tagManagerState.bulkTags]
+            };
+            state.view = 'imageUpload';
+            render();
+        };
+
+        window.exportTagsReport = () => {
+            if (!state.tagManagerState.selectedFabric || !state.tagManagerState.selectedCategory) {
+                showNotification('لطفا پارچه و دسته‌بندی را انتخاب کنید', 'error');
+                return;
+            }
+
+            const fabricName = getFabricNameById(state.tagManagerState.selectedFabric.id);
+            const key = `${fabricName}_${state.tagManagerState.selectedCategory}`;
+            const images = GALLERY_IMAGES[key] || [];
+
+            const data = images.map((img, index) => ({
+                'شماره': index + 1,
+                'تگ‌ها': (img.tags || []).join(', '),
+                'تعداد تگ': (img.tags || []).length
+            }));
+
+            try {
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "گزارش تگ‌ها");
+
+                const fabricName = state.tagManagerState.selectedFabric.name.replace(/\s+/g, '_');
+                const categoryName = CATEGORIES.find(c => c.id === state.tagManagerState.selectedCategory)?.label.replace(/\s+/g, '_');
+                const date = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `tags_${fabricName}_${categoryName}_${date}.xlsx`);
+
+                showNotification('گزارش تگ‌ها با موفقیت تولید شد', 'success');
+            } catch (error) {
+                console.error('Export error:', error);
+                showNotification('خطا در تولید گزارش', 'error');
+            }
+        };
+
+        // Tag Editor Modal for Image
+        function createTagEditorModal(imageUrl) {
+            if (!imageUrl) return '';
+
+            const currentTags = TAGS_DB.imageTags[imageUrl] || [];
+            const allTags = getAllTags();
+
+            return `
+                <div class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 animate-fade-in">
+                    <div class="bg-reyhan-green rounded-2xl w-full max-w-md border border-reyhan-gold/30 max-h-[80vh] overflow-hidden">
+                        <div class="p-6 border-b border-reyhan-gold/20">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-bold text-white">مدیریت تگ‌های تصویر</h3>
+                                <button onclick="closeTagEditor()" class="text-reyhan-gold hover:text-reyhan-goldLight">
+                                    <i data-lucide="x" class="w-6 h-6"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 overflow-y-auto max-h-[60vh]">
+                            <div class="mb-6">
+                                <img src="${imageUrl}" 
+                                     class="w-full h-48 object-cover rounded-lg mb-4 cursor-pointer"
+                                     onclick="openImageInNewTab('${imageUrl}')">
+                                <p class="text-gray-300 text-sm text-center">روی تصویر کلیک کنید تا در تب جدید باز شود</p>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h4 class="font-bold text-white mb-3">تگ‌های فعلی</h4>
+                                ${currentTags.length > 0 ? `
+                                    <div class="flex flex-wrap gap-2">
+                                        ${currentTags.map(tag => `
+                                            <span class="tag">
+                                                ${tag}
+                                                <i data-lucide="x" 
+                                                   class="w-3 h-3 tag-remove"
+                                                   onclick="removeImageTag('${imageUrl}', '${tag}')"></i>
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                ` : `
+                                    <p class="text-gray-400 text-sm">هیچ تگی برای این تصویر وجود ندارد</p>
+                                `}
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h4 class="font-bold text-white mb-3">افزودن تگ جدید</h4>
+                                <div class="flex gap-2 mb-3">
+                                    <input type="text" 
+                                           id="newTagInput"
+                                           class="flex-1 tag-input"
+                                           placeholder="تگ جدید را وارد کنید..."
+                                           onkeypress="if(event.key === 'Enter') addNewTagToImage('${imageUrl}')">
+                                    <button onclick="addNewTagToImage('${imageUrl}')"
+                                            class="px-4 py-2 bg-reyhan-gold/20 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/30">
+                                        افزودن
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <p class="text-sm text-reyhan-gold mb-2">تگ‌های پیشنهادی:</p>
+                                    <div class="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2">
+                                        ${allTags.filter(tag => !currentTags.includes(tag)).map(tag => `
+                                            <button onclick="addExistingTagToImage('${imageUrl}', '${tag}')"
+                                                    class="tag">
+                                                ${tag}
+                                                <i data-lucide="plus" class="w-3 h-3"></i>
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 border-t border-reyhan-gold/20">
+                            <div class="flex justify-between">
+                                <button onclick="closeTagEditor()"
+                                        class="px-4 py-2 border border-reyhan-gold/50 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/10">
+                                    بستن
+                                </button>
+                                <div class="text-sm text-reyhan-gold/70">
+                                    <i data-lucide="tag" class="w-4 h-4 inline ml-1"></i>
+                                    ${currentTags.length} تگ
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        let currentEditingImage = null;
+
+        window.closeTagEditor = () => {
+            currentEditingImage = null;
+            render();
+        };
+
+        window.addNewTagToImage = (imageUrl) => {
+            const input = document.getElementById('newTagInput');
+            if (input && input.value.trim()) {
+                const newTag = input.value.trim();
+                if (addTagToImage(imageUrl, newTag)) {
+                    showNotification(`تگ "${newTag}" اضافه شد`, 'success');
+                    input.value = '';
+                    render();
+                } else {
+                    showNotification('این تگ قبلاً اضافه شده است', 'warning');
+                }
+            }
+        };
+
+        window.addExistingTagToImage = (imageUrl, tag) => {
+            if (addTagToImage(imageUrl, tag)) {
+                showNotification(`تگ "${tag}" اضافه شد`, 'success');
+                render();
+            }
+        };
+
+        window.removeImageTag = (imageUrl, tag) => {
+            if (removeTagFromImage(imageUrl, tag)) {
+                showNotification(`تگ "${tag}" حذف شد`, 'success');
+                render();
+            }
+        };
+
         // Render Engine
         function render() {
             const app = document.getElementById('app');
             app.innerHTML = '';
+
+            // Add Tag Search button to all pages except gate
+            if (state.view !== 'gate') {
+                const searchBtn = document.createElement('button');
+                searchBtn.onclick = openTagSearch;
+                searchBtn.className = 'fixed top-4 right-4 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
+                searchBtn.innerHTML = '<i data-lucide="search" class="w-5 h-5 text-reyhan-gold"></i>';
+                app.appendChild(searchBtn);
+            }
 
             // Add Home button to all pages except gate and landing
             if (state.view !== 'gate' && state.view !== 'landing') {
@@ -652,6 +1546,17 @@
                 case 'gallery': app.appendChild(createGalleryView()); break;
                 case 'admin': app.appendChild(createEnhancedAdminView()); break;
                 case 'imageUpload': app.appendChild(createImageUploadView()); break;
+                case 'tagManager': app.appendChild(createTagManagerView()); break;
+            }
+
+            // Add Tag Search Modal if open
+            if (state.tagSearchState.isOpen) {
+                app.innerHTML += createTagSearchModal();
+            }
+
+            // Add Tag Editor Modal if editing
+            if (currentEditingImage) {
+                app.innerHTML += createTagEditorModal(currentEditingImage);
             }
 
             setTimeout(() => lucide.createIcons(), 50);
@@ -1048,7 +1953,7 @@
             }, 300);
         };
 
-        // View 5: Gallery/Showroom with Simple Image Opening
+        // View 5: Gallery/Showroom with Tags Display
         function createGalleryView() {
             const category = CATEGORIES.find(c => c.id === state.selectedCategory);
             const images = getGalleryImages(state.selectedFabric.id, state.selectedCategory);
@@ -1069,21 +1974,57 @@
                     <!-- Gallery Grid -->
                     ${images.length > 0 ? `
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-                            ${images.map((image, index) => `
-                                <div class="group relative rounded-2xl overflow-hidden border-2 border-reyhan-gold/20 hover:border-reyhan-gold transition-all duration-500 animate-slide-up backdrop-blur-sm cursor-pointer"
-                                     style="animation-delay: ${index * 0.1}s"
-                                     onclick="openImageInNewTab('${image}')">
-                                    <img src="${image}"
-                                         class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
-                                        <span class="text-white font-bold">طراحی شماره ${index + 1}</span>
-                                        <i data-lucide="zoom-in" class="w-5 h-5 text-reyhan-gold mr-2"></i>
+                            ${images.map((imageData, index) => {
+                const imageUrl = imageData.url;
+                const tags = imageData.tags || [];
+                return `
+                                <div class="group relative rounded-2xl overflow-hidden border-2 border-reyhan-gold/20 hover:border-reyhan-gold transition-all duration-500 animate-slide-up backdrop-blur-sm image-container"
+                                     style="animation-delay: ${index * 0.1}s">
+                                    <!-- Tag Badge -->
+                                    ${tags.length > 0 ? `
+                                        <div class="image-tag-badge" onclick="openImageTagEditor('${imageUrl}')">
+                                            <i data-lucide="tag" class="w-3 h-3 inline ml-1"></i>
+                                            ${tags.length} تگ
+                                        </div>
+                                    ` : `
+                                        <div class="image-tag-badge" onclick="openImageTagEditor('${imageUrl}')">
+                                            <i data-lucide="tag" class="w-3 h-3"></i>
+                                            افزودن تگ
+                                        </div>
+                                    `}
+                                    
+                                    <!-- Image -->
+                                    <img src="${imageUrl}"
+                                         class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700 cursor-pointer"
+                                         onclick="openImageInNewTab('${imageUrl}')">
+                                    
+                                    <!-- Tags Overlay -->
+                                    <div class="image-tags-overlay">
+                                        ${tags.length > 0 ? `
+                                            <div class="flex flex-wrap gap-1 justify-center">
+                                                ${tags.map(tag => `
+                                                    <span class="text-xs bg-reyhan-gold/50 px-2 py-1 rounded">
+                                                        ${tag}
+                                                    </span>
+                                                `).join('')}
+                                            </div>
+                                        ` : `
+                                            <p class="text-gray-400 text-xs text-center">برای افزودن تگ روی آیکون تگ کلیک کنید</p>
+                                        `}
                                     </div>
+                                    
+                                    <!-- Quick Tag Button -->
+                                    <button onclick="openImageTagEditor('${imageUrl}')"
+                                            class="quick-tag-btn">
+                                        <i data-lucide="tag" class="w-4 h-4"></i>
+                                    </button>
+                                    
+                                    <!-- Image Number -->
                                     <div class="absolute top-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded">
                                         ${index + 1}
                                     </div>
                                 </div>
-                            `).join('')}
+                            `}).join('')}
                         </div>
                     ` : `
                         <div class="text-center py-16 glass-panel rounded-2xl max-w-md mx-auto">
@@ -1138,6 +2079,11 @@
                                 <p class="text-reyhan-gold text-sm mt-1">تعداد رکوردها: ${customers.length}</p>
                             </div>
                             <div class="flex flex-wrap justify-center gap-3">
+                                <button onclick="openTagManager()"
+                                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl">
+                                    <i data-lucide="tags" class="w-4 h-4"></i>
+                                    مدیریت تگ‌های تصاویر
+                                </button>
                                 <button onclick="openImageUpload()"
                                         class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl">
                                     <i data-lucide="upload" class="w-4 h-4"></i>
@@ -1172,6 +2118,58 @@
                         </div>
                     </div>
                    
+                    <!-- Tag Statistics -->
+                    <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">آمار تگ‌ها</h3>
+                            <button onclick="openTagSearch()"
+                                    class="px-4 py-2 bg-reyhan-green text-white rounded-lg hover:bg-reyhan-dark transition-all text-sm flex items-center gap-2">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                                جستجوی تگ
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-reyhan-green mb-1">${getAllTags().length}</div>
+                                <div class="text-sm text-gray-600">تعداد کل تگ‌ها</div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-reyhan-green mb-1">${Object.keys(TAGS_DB.imageTags).length}</div>
+                                <div class="text-sm text-gray-600">تصاویر دارای تگ</div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-reyhan-green mb-1">${FABRICS.reduce((total, fabric) => {
+                const fabricName = getFabricNameById(fabric.id);
+                return total + (
+                    (GALLERY_IMAGES[`${fabricName}_male`]?.length || 0) +
+                    (GALLERY_IMAGES[`${fabricName}_female`]?.length || 0) +
+                    (GALLERY_IMAGES[`${fabricName}_children`]?.length || 0)
+                );
+            }, 0)}</div>
+                                <div class="text-sm text-gray-600">کل تصاویر</div>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-reyhan-green mb-1">${Math.round(Object.values(TAGS_DB.imageTags).reduce((total, tags) => total + tags.length, 0) / (Object.keys(TAGS_DB.imageTags).length || 1))}</div>
+                                <div class="text-sm text-gray-600">میانگین تگ بر تصویر</div>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-700 mb-2">تگ‌های پرکاربرد:</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${getAllTags().slice(0, 15).map(tag => `
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm border">
+                                        ${tag} <span class="text-reyhan-gold text-xs">(${getImagesByTag(tag).length})</span>
+                                    </span>
+                                `).join('')}
+                                ${getAllTags().length > 15 ? `
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm">
+                                        +${getAllTags().length - 15} بیشتر
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                   
                     <!-- Current Logo Preview -->
                     <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
                         <h3 class="text-lg font-bold text-gray-800 mb-4">لوگوی فعلی</h3>
@@ -1193,7 +2191,7 @@
                    
                     <!-- Image Statistics -->
                     <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4">آمار تصاویر</h3>
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">آمار تصاویر بر اساس پارچه</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             ${FABRICS.map(fabric => {
                 const fabricName = getFabricNameById(fabric.id);
@@ -1202,7 +2200,7 @@
                     (GALLERY_IMAGES[`${fabricName}_female`]?.length || 0) +
                     (GALLERY_IMAGES[`${fabricName}_children`]?.length || 0);
                 return `
-                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="bg-gray-50 p-4 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors" onclick="selectFabricInTagManager(${fabric.id})">
                                         <h4 class="font-bold text-gray-800 mb-2">${fabric.name}</h4>
                                         <div class="text-sm text-gray-600">
                                             <div class="flex justify-between mb-1">
@@ -1278,7 +2276,7 @@
             return el;
         }
 
-        // View 7: Image Upload Interface
+        // View 7: Image Upload Interface with Tags
         function createImageUploadView() {
             const el = document.createElement('div');
             el.className = 'min-h-screen bg-green-gradient p-4 animate-fade-in';
@@ -1322,6 +2320,45 @@
                             </div>
                         ` : ''}
                        
+                        <!-- Tag Input for New Images -->
+                        ${state.adminUploadState.selectedFabric && state.adminUploadState.selectedCategory ? `
+                            <div class="mb-6">
+                                <h3 class="text-lg font-bold text-white mb-3">تگ‌های تصاویر جدید</h3>
+                                <div class="mb-4">
+                                    <p class="text-gray-300 text-sm mb-3">تگ‌هایی که برای تصاویر جدید اضافه می‌شود:</p>
+                                    <div id="uploadTagsContainer" class="flex flex-wrap gap-2 mb-3">
+                                        ${state.adminUploadState.tags ? state.adminUploadState.tags.map(tag => `
+                                            <span class="tag">
+                                                ${tag}
+                                                <i data-lucide="x" class="w-3 h-3 tag-remove" onclick="removeUploadTag('${tag}')"></i>
+                                            </span>
+                                        `).join('') : ''}
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <input type="text"
+                                               id="uploadTagInput"
+                                               class="tag-input flex-1"
+                                               placeholder="افزودن تگ جدید...">
+                                        <button onclick="addUploadTag()"
+                                                class="px-4 py-2 bg-reyhan-gold/20 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/30">
+                                            افزودن
+                                        </button>
+                                    </div>
+                                    <div class="mt-3">
+                                        <p class="text-sm text-reyhan-gold mb-2">تگ‌های پرکاربرد:</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            ${getAllTags().slice(0, 8).map(tag => `
+                                                <button onclick="addExistingTagToUpload('${tag}')"
+                                                        class="tag ${state.adminUploadState.tags?.includes(tag) ? 'active' : ''}">
+                                                    ${tag}
+                                                </button>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                       
                         <!-- Image Upload Area -->
                         ${state.adminUploadState.selectedFabric && state.adminUploadState.selectedCategory ? `
                             <div class="mb-6">
@@ -1357,17 +2394,24 @@
                         ${state.adminUploadState.selectedFabric && state.adminUploadState.selectedCategory ? `
                             <div>
                                 <h3 class="text-lg font-bold text-white mb-3">تصاویر فعلی</h3>
-                                <div class="preview-grid">
+                                <div class="mb-4 flex flex-wrap gap-2">
                                     ${(() => {
                         const fabricName = getFabricNameById(state.adminUploadState.selectedFabric.id);
                         const key = `${fabricName}_${state.adminUploadState.selectedCategory}`;
                         const images = GALLERY_IMAGES[key] || [];
                         return images.length > 0 ?
-                            images.map((img, index) => `
-                                                <img src="${img}"
-                                                     alt="Image ${index + 1}"
-                                                     class="preview-image"
-                                                     onclick="openImageInNewTab('${img}')">
+                            images.map((imgData, index) => `
+                                                <div class="relative">
+                                                    ${imgData.tags?.length > 0 ? `
+                                                        <div class="image-tag-badge" onclick="openTagEditor('${imgData.url}')">
+                                                            <i data-lucide="tag" class="w-3 h-3"></i>
+                                                        </div>
+                                                    ` : ''}
+                                                    <img src="${imgData.url}"
+                                                         alt="Image ${index + 1}"
+                                                         class="preview-image"
+                                                         onclick="openImageInNewTab('${imgData.url}')">
+                                                </div>
                                             `).join('') :
                             `<p class="text-gray-300 col-span-full text-center py-4">هنوز تصویری آپلود نشده است</p>`;
                     })()}
@@ -1396,10 +2440,47 @@
             return el;
         }
 
+        // Tag management for upload
+        window.addUploadTag = () => {
+            const input = document.getElementById('uploadTagInput');
+            if (input && input.value.trim()) {
+                const tag = input.value.trim();
+                if (!state.adminUploadState.tags) {
+                    state.adminUploadState.tags = [];
+                }
+                if (!state.adminUploadState.tags.includes(tag)) {
+                    state.adminUploadState.tags.push(tag);
+                    input.value = '';
+                    render();
+                }
+            }
+        };
+
+        window.addExistingTagToUpload = (tag) => {
+            if (!state.adminUploadState.tags) {
+                state.adminUploadState.tags = [];
+            }
+            if (!state.adminUploadState.tags.includes(tag)) {
+                state.adminUploadState.tags.push(tag);
+                render();
+            }
+        };
+
+        window.removeUploadTag = (tag) => {
+            if (state.adminUploadState.tags) {
+                const index = state.adminUploadState.tags.indexOf(tag);
+                if (index > -1) {
+                    state.adminUploadState.tags.splice(index, 1);
+                    render();
+                }
+            }
+        };
+
         window.selectFabricForUpload = (fabricId) => {
             state.adminUploadState.selectedFabric = FABRICS.find(f => f.id === fabricId);
             state.adminUploadState.selectedCategory = null;
             state.adminUploadState.uploadedImages = [];
+            state.adminUploadState.tags = [];
             render();
         };
 
@@ -1430,25 +2511,73 @@
             if (uploadArea) uploadArea.classList.remove('dragover');
 
             const files = e.dataTransfer.files;
-            handleImageUpload(
-                state.adminUploadState.selectedFabric.id,
-                state.adminUploadState.selectedCategory,
-                files
-            );
+            handleImageUploadWithTags(files);
         };
 
         window.handleFileSelect = (e) => {
             const files = e.target.files;
-            handleImageUpload(
-                state.adminUploadState.selectedFabric.id,
-                state.adminUploadState.selectedCategory,
-                files
-            );
+            handleImageUploadWithTags(files);
         };
 
+        function handleImageUploadWithTags(files) {
+            const fabricId = state.adminUploadState.selectedFabric.id;
+            const categoryId = state.adminUploadState.selectedCategory;
+            const tags = state.adminUploadState.tags || [];
+
+            const fabricName = getFabricNameById(fabricId);
+            const key = `${fabricName}_${categoryId}`;
+
+            if (!GALLERY_IMAGES[key]) {
+                GALLERY_IMAGES[key] = [];
+            }
+
+            const categoryLabel = CATEGORIES.find(c => c.id === categoryId)?.label || categoryId;
+
+            Array.from(files).forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const imageUrl = e.target.result;
+                        const imageData = {
+                            url: imageUrl,
+                            tags: [...tags] // Copy tags array
+                        };
+
+                        GALLERY_IMAGES[key].push(imageData);
+
+                        // Add to tags database
+                        tags.forEach(tag => {
+                            addTagToImage(imageUrl, tag);
+                        });
+
+                        if (index === files.length - 1) {
+                            saveImagesToStorage();
+                            saveTagsToStorage();
+                            showNotification(`${files.length} تصویر ${categoryLabel} با تگ‌ها اضافه شد`, 'success');
+
+                            // Reset upload state
+                            state.adminUploadState.uploadedImages = [];
+                            state.adminUploadState.tags = [];
+
+                            // Refresh view
+                            if (state.view === 'admin' || state.view === 'imageUpload' || state.view === 'tagManager') {
+                                render();
+                            }
+                        }
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
         window.saveUploadedImages = () => {
+            saveImagesToStorage();
+            saveTagsToStorage();
             showNotification('تصاویر با موفقیت ذخیره شدند', 'success');
             state.adminUploadState.uploadedImages = [];
+            state.adminUploadState.tags = [];
             setTimeout(() => navigateTo('admin'), 1000);
         };
 
@@ -1456,7 +2585,8 @@
             state.adminUploadState = {
                 selectedFabric: null,
                 selectedCategory: null,
-                uploadedImages: []
+                uploadedImages: [],
+                tags: []
             };
             navigateTo('imageUpload');
         };
@@ -1602,6 +2732,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Load saved images from localStorage
             loadImagesFromStorage();
+            loadTagsFromStorage();
+            initializeTags();
 
             // Load saved fabric images
             const savedFabricImages = localStorage.getItem('reyhantex_fabric_images');
