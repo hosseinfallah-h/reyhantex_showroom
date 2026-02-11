@@ -284,6 +284,44 @@
             transform: scale(1.05);
         }
 
+        /* QR Popup Styles */
+        .qr-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .qr-card {
+            background: #013a34;
+            border: 2px solid #d4af37;
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 350px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(212, 175, 55, 0.3);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .qr-close {
+            color: #d4af37;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .qr-close:hover {
+            transform: scale(1.2);
+            color: #f3e5ab;
+        }
+
         @media (max-width: 768px) {
             .preview-grid {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -321,6 +359,10 @@
          * 3. Random image showcase on landing page
          * 4. Enhanced tag management system
          * 5. All Images gallery view
+         * 6. QR Code popup linking to nasa.gov
+         * 7. Form: instagram replaced with brand (شرح برند)
+         * 8. Form: added multi-select رسته شغلی
+         * 9. Main page: two more fabric types (up to id 6) with placeholder images
          */
 
         const CONFIG = {
@@ -331,7 +373,7 @@
             logoImage: localStorage.getItem('reyhantex_logo') || 'assets/logo/IMG_20251209_154206_917.jpg'
         };
 
-        // Base fabrics with their images
+        // Base fabrics with their images - EXTENDED TO ID 6 WITH PLACEHOLDERS
         const FABRICS = [
             {
                 id: 1,
@@ -381,6 +423,32 @@
                     children: 'assets/fabric/pofaki/children/1770112752571.png'
                 }
             },
+            // NEW FABRIC ID 5 - PLACEHOLDER
+            {
+                id: 5,
+                name: 'کتان لوکس',
+                enName: 'Linen Luxe',
+                price: '$$$$',
+                image: 'https://placehold.co/600x800/013a34/d4af37?text=کتان+لوکس',
+                categoryImages: {
+                    male: 'https://placehold.co/600x800/013a34/d4af37?text=مردانه+کتان',
+                    female: 'https://placehold.co/600x800/013a34/d4af37?text=زنانه+کتان',
+                    children: 'https://placehold.co/600x800/013a34/d4af37?text=بچگانه+کتان'
+                }
+            },
+            // NEW FABRIC ID 6 - PLACEHOLDER
+            {
+                id: 6,
+                name: 'مخمل نگین',
+                enName: 'Velvet Gem',
+                price: '$$$$$',
+                image: 'https://placehold.co/600x800/013a34/d4af37?text=مخمل+نگین',
+                categoryImages: {
+                    male: 'https://placehold.co/600x800/013a34/d4af37?text=مردانه+مخمل',
+                    female: 'https://placehold.co/600x800/013a34/d4af37?text=زنانه+مخمل',
+                    children: 'https://placehold.co/600x800/013a34/d4af37?text=بچگانه+مخمل'
+                }
+            }
         ];
 
         const CATEGORIES = [
@@ -423,7 +491,7 @@
                 { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 04_54_43 PM.png', tags: ['ساده', 'شومیز'] },
                 { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_16_15 PM.png', tags: ['ست', 'تاپ'] },
                 { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_31_05 PM.png', tags: ['ساده', 'ساحلی'] },
-                { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_44_24 PM.png', tags: ['ساده' , 'ساحلی'] },
+                { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 28, 2026, 05_44_24 PM.png', tags: ['ساده', 'ساحلی'] },
                 { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_00_18 PM.png', tags: ['ست', 'شومیز'] },
                 { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_07_00 PM.png', tags: ['ست', 'ساده', 'تیشرت'] },
                 { url: 'assets/fabric/reyhana/female/ChatGPT Image Jan 29, 2026, 01_09_06 PM.png', tags: ['ساده'] },
@@ -548,15 +616,23 @@
                 { url: 'assets/fabric/poliEsterPanbeh_U/male/Gemini_Generated_Image_oic8txoic8txoic8.png', tags: ['ست', 'تیشرت'] },
                 { url: 'assets/fabric/poliEsterPanbeh_U/male/Gemini_Generated_Image_r83ew0r83ew0r83e.png', tags: ['ست', 'تیشرت'] },
                 { url: 'assets/fabric/poliEsterPanbeh_U/male/Gemini_Generated_Image_y0tdsly0tdsly0td.png', tags: ['ست', 'تیشرت'] },
-
             ],
             poliEsterPanbeh_female: [],
             poliEsterPanbeh_children: [],
         };
 
+        // Add placeholder gallery entries for new fabrics (id 5 and 6)
+        // Initialize empty arrays for the new fabrics
+        GALLERY_IMAGES['کتان لوکس_male'] = [];
+        GALLERY_IMAGES['کتان لوکس_female'] = [];
+        GALLERY_IMAGES['کتان لوکس_children'] = [];
+        GALLERY_IMAGES['مخمل نگین_male'] = [];
+        GALLERY_IMAGES['مخمل نگین_female'] = [];
+        GALLERY_IMAGES['مخمل نگین_children'] = [];
+
         // Tag Management System
         let TAGS_DB = {
-            allTags: new Set(['نگینی', 'چاپی' ,'ساده' , 'شومیز', 'ست', 'تاپ', 'تیشرت', 'ست', 'تونیک', 'ساحلی']),
+            allTags: new Set(['نگینی', 'چاپی', 'ساده', 'شومیز', 'ست', 'تاپ', 'تیشرت', 'ست', 'تونیک', 'ساحلی']),
             imageTags: {} // imageUrl -> [tags]
         };
 
@@ -779,7 +855,14 @@
         }
 
         function getFabricNameById(id) {
-            const fabricNames = { 1: 'reyhana', 2: 'pofaki', 3: 'selina', 4: 'poliEsterPanbeh' };
+            const fabricNames = {
+                1: 'reyhana',
+                2: 'pofaki',
+                3: 'selina',
+                4: 'poliEsterPanbeh',
+                5: 'کتان لوکس',
+                6: 'مخمل نگین'
+            };
             return fabricNames[id];
         }
 
@@ -872,13 +955,14 @@
         // Application State
         const state = {
             view: 'gate',
-            userData: { name: '', phone: '', instagram: '' },
+            userData: { name: '', phone: '', brand: '', jobCategories: '' }, // instagram replaced with brand, added jobCategories
             selectedFabric: null,
             selectedCategory: null,
             adminUploadState: {
                 selectedFabric: null,
                 selectedCategory: null,
-                uploadedImages: []
+                uploadedImages: [],
+                tags: []
             },
             tagSearchState: {
                 isOpen: false,
@@ -892,7 +976,8 @@
                 selectedCategory: null,
                 selectedImage: null,
                 bulkTags: []
-            }
+            },
+            qrPopupVisible: false // QR popup state
         };
 
         // Navigation Helper
@@ -925,6 +1010,37 @@
             setTimeout(() => {
                 notification.remove();
             }, 3000);
+        }
+
+        // QR Popup Functions
+        function toggleQrPopup() {
+            state.qrPopupVisible = !state.qrPopupVisible;
+            render();
+        }
+
+        function createQrPopup() {
+            if (!state.qrPopupVisible) return '';
+
+            return `
+                <div class="qr-popup" onclick="toggleQrPopup()">
+                    <div class="qr-card text-center" onclick="event.stopPropagation()">
+                        <div class="flex justify-end mb-2">
+                            <i data-lucide="x" class="qr-close w-6 h-6" onclick="toggleQrPopup()"></i>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg mb-4 shadow-lg">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://nasa.gov" 
+                                 alt="QR Code for nasa.gov" 
+                                 class="w-full h-auto">
+                        </div>
+                        <p class="text-reyhan-gold font-bold text-lg mb-2">https://nasa.gov</p>
+                        <p class="text-white/80 text-sm">اسکن کنید تا وارد سایت ناسا شوید</p>
+                        <div class="mt-4 text-xs text-reyhan-gold/60">
+                            <i data-lucide="shield" class="w-3 h-3 inline ml-1"></i>
+                            QR کد پایدار - همیشه به nasa.gov متصل است
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         // Logo Component
@@ -1831,7 +1947,7 @@
             const app = document.getElementById('app');
             app.innerHTML = '';
 
-            // Add Search and All Images buttons to all pages except gate
+            // Add Search, All Images and QR buttons to all pages except gate
             if (state.view !== 'gate') {
                 // All Images Button
                 const allImagesBtn = document.createElement('button');
@@ -1846,6 +1962,13 @@
                 searchBtn.className = 'fixed top-4 right-4 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
                 searchBtn.innerHTML = '<i data-lucide="search" class="w-5 h-5 text-reyhan-gold"></i>';
                 app.appendChild(searchBtn);
+
+                // QR Code Button - NEW
+                const qrBtn = document.createElement('button');
+                qrBtn.onclick = toggleQrPopup;
+                qrBtn.className = 'fixed top-4 right-32 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
+                qrBtn.innerHTML = '<i data-lucide="qr-code" class="w-5 h-5 text-reyhan-gold"></i>';
+                app.appendChild(qrBtn);
             }
 
             // Add Home button to all pages except gate and landing
@@ -1886,6 +2009,11 @@
             // Add Tag Editor Modal if editing
             if (currentEditingImage) {
                 app.innerHTML += createTagEditorModal(currentEditingImage);
+            }
+
+            // Add QR Popup if visible
+            if (state.qrPopupVisible) {
+                app.innerHTML += createQrPopup();
             }
 
             setTimeout(() => lucide.createIcons(), 50);
@@ -1951,7 +2079,7 @@
             return el;
         }
 
-        // View 2: Enhanced Landing Page with Random Image Showcase
+        // View 2: Enhanced Landing Page with Random Image Showcase (Now includes 6 fabrics)
         function createEnhancedLandingView() {
             const el = document.createElement('div');
             el.className = 'w-full min-h-screen animate-fade-in';
@@ -2089,7 +2217,7 @@
             navigateTo('form');
         };
 
-        // View 3: Form
+        // View 3: Form - MODIFIED: instagram replaced with brand, added multi-select رسته شغلی
         function createFormView() {
             const el = document.createElement('div');
             el.className = 'min-h-screen bg-green-gradient animate-fade-in';
@@ -2124,12 +2252,42 @@
                                        placeholder="09123456789">
                             </div>
                            
+                            <!-- NEW: Brand field (replaces Instagram) -->
                             <div>
-                                <label class="block text-reyhan-gold text-sm font-bold mb-2">اینستاگرام (اختیاری)</label>
+                                <label class="block text-reyhan-gold text-sm font-bold mb-2">شرح برند (اختیاری)</label>
                                 <input type="text"
-                                       id="instagramInput"
+                                       id="brandInput"
                                        class="w-full px-4 py-3 input-field rounded-lg text-white backdrop-blur-sm"
-                                       placeholder="username@">
+                                       placeholder="نام برند خود را وارد کنید">
+                            </div>
+
+                            <!-- NEW: Job Category (رسته شغلی) - Multi-select -->
+                            <div>
+                                <label class="block text-reyhan-gold text-sm font-bold mb-2">رسته شغلی:</label>
+                                <div class="bg-reyhan-dark/30 p-4 rounded-lg border border-reyhan-gold/30">
+                                    <div class="flex flex-col gap-3">
+                                        <label class="flex items-center gap-3 text-white cursor-pointer hover:text-reyhan-gold transition-colors">
+                                            <input type="checkbox" value="تولیدی مردانه" class="w-4 h-4 accent-reyhan-gold rounded border-reyhan-gold/50 bg-transparent">
+                                            <span>تولیدی مردانه</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 text-white cursor-pointer hover:text-reyhan-gold transition-colors">
+                                            <input type="checkbox" value="تولیدی زنانه" class="w-4 h-4 accent-reyhan-gold rounded border-reyhan-gold/50 bg-transparent">
+                                            <span>تولیدی زنانه</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 text-white cursor-pointer hover:text-reyhan-gold transition-colors">
+                                            <input type="checkbox" value="تولیدی بچگانه" class="w-4 h-4 accent-reyhan-gold rounded border-reyhan-gold/50 bg-transparent">
+                                            <span>تولیدی بچگانه</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 text-white cursor-pointer hover:text-reyhan-gold transition-colors">
+                                            <input type="checkbox" value="پارچه فروش" class="w-4 h-4 accent-reyhan-gold rounded border-reyhan-gold/50 bg-transparent">
+                                            <span>پارچه فروش</span>
+                                        </label>
+                                    </div>
+                                    <p class="text-reyhan-gold/70 text-xs mt-3">
+                                        <i data-lucide="info" class="w-3 h-3 inline ml-1"></i>
+                                        می‌توانید چند گزینه را انتخاب کنید
+                                    </p>
+                                </div>
                             </div>
                            
                             <div class="grid grid-cols-2 gap-4 pt-4">
@@ -2170,10 +2328,15 @@
             form.onsubmit = (e) => {
                 e.preventDefault();
 
+                // Get all selected job categories
+                const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
+                const selectedJobCategories = Array.from(checkboxes).map(cb => cb.value).join('، ');
+
                 state.userData = {
                     name: nameInput.value.trim(),
                     phone: phoneInput.value.trim(),
-                    instagram: el.querySelector('#instagramInput').value.trim()
+                    brand: el.querySelector('#brandInput').value.trim(),
+                    jobCategories: selectedJobCategories
                 };
 
                 const result = db.addCustomer({
@@ -2196,7 +2359,7 @@
         }
 
         window.skipToCategory = () => {
-            state.userData = { name: '', phone: '', instagram: '' };
+            state.userData = { name: '', phone: '', brand: '', jobCategories: '' };
             navigateTo('category');
         };
 
@@ -2392,7 +2555,7 @@
             return el;
         }
 
-        // View 6: Enhanced Admin Panel
+        // View 6: Enhanced Admin Panel (Updated to show brand and jobCategories)
         function createEnhancedAdminView() {
             const customers = db.getAllCustomers();
 
@@ -2548,7 +2711,7 @@
                         </div>
                     </div>
                    
-                    <!-- Customers Table -->
+                    <!-- Customers Table - UPDATED with Brand and Job Categories columns -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
@@ -2557,7 +2720,8 @@
                                         <th class="px-6 py-4 text-right font-bold text-gray-700">تاریخ</th>
                                         <th class="px-6 py-4 text-right font-bold text-gray-700">نام</th>
                                         <th class="px-6 py-4 text-right font-bold text-gray-700">تلفن</th>
-                                        <th class="px-6 py-4 text-right font-bold text-gray-700">اینستاگرام</th>
+                                        <th class="px-6 py-4 text-right font-bold text-gray-700">شرح برند</th>
+                                        <th class="px-6 py-4 text-right font-bold text-gray-700">رسته شغلی</th>
                                         <th class="px-6 py-4 text-right font-bold text-gray-700">پارچه</th>
                                         <th class="px-6 py-4 text-right font-bold text-gray-700">دسته</th>
                                     </tr>
@@ -2568,7 +2732,8 @@
                                             <td class="px-6 py-4 text-gray-600 whitespace-nowrap">${new Date(customer.timestamp).toLocaleString('fa-IR')}</td>
                                             <td class="px-6 py-4 font-bold text-gray-800">${customer.name}</td>
                                             <td class="px-6 py-4 text-gray-700 dir-ltr text-left">${customer.phone}</td>
-                                            <td class="px-6 py-4 text-gray-600">${customer.instagram || '-'}</td>
+                                            <td class="px-6 py-4 text-gray-600">${customer.brand || '-'}</td>
+                                            <td class="px-6 py-4 text-gray-600">${customer.jobCategories || '-'}</td>
                                             <td class="px-6 py-4 font-bold text-reyhan-green">${customer.fabric}</td>
                                             <td class="px-6 py-4">
                                                 <span class="px-2 py-1 rounded-full text-xs ${customer.category === 'male' ? 'bg-blue-100 text-blue-800' :
@@ -2582,7 +2747,7 @@
                                         </tr>
                                     `).join('') : `
                                         <tr>
-                                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                                                 <i data-lucide="database" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                                                 <p>هیچ رکوردی یافت نشد</p>
                                             </td>
@@ -2993,7 +3158,8 @@
                     'تاریخ': new Date(c.timestamp).toLocaleString('fa-IR'),
                     'نام': c.name,
                     'تلفن': c.phone,
-                    'اینستاگرام': c.instagram || '-',
+                    'شرح برند': c.brand || '-',
+                    'رسته شغلی': c.jobCategories || '-',
                     'پارچه': c.fabric,
                     'دسته بندی': c.category ? CATEGORIES.find(cat => cat.id === c.category)?.label : '-'
                 }));
@@ -3021,7 +3187,7 @@
         };
 
         window.goBackToLanding = () => {
-            state.userData = { name: '', phone: '', instagram: '' };
+            state.userData = { name: '', phone: '', brand: '', jobCategories: '' };
             state.selectedFabric = null;
             state.selectedCategory = null;
             navigateTo('landing');
@@ -3050,6 +3216,9 @@
             }, 2500);
         };
 
+        // QR Popup toggle function (global)
+        window.toggleQrPopup = toggleQrPopup;
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             // Load saved images from localStorage
@@ -3075,19 +3244,21 @@
 
             render();
 
-            // Add sample data if empty
+            // Add sample data if empty (updated with brand and jobCategories)
             if (db.getAllCustomers().length === 0) {
                 db.addCustomer({
                     name: 'احمد محمدی',
                     phone: '09121234567',
-                    instagram: 'ahmad',
+                    brand: 'احمد مد',
+                    jobCategories: 'تولیدی مردانه',
                     fabric: 'ریحانا',
                     category: 'male'
                 });
                 db.addCustomer({
                     name: 'فاطمه کریمی',
                     phone: '09129876543',
-                    instagram: 'fatemeh',
+                    brand: 'فاطمه استایل',
+                    jobCategories: 'تولیدی زنانه، پارچه فروش',
                     fabric: 'پفکی (ینزی)',
                     category: 'female'
                 });
