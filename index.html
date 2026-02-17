@@ -130,7 +130,6 @@
             object-fit: contain;
         }
 
-        /* Image Upload Styles */
         .image-upload-area {
             border: 2px dashed rgba(212, 175, 55, 0.5);
             border-radius: 15px;
@@ -173,7 +172,6 @@
             border-color: rgba(212, 175, 55, 0.8);
         }
 
-        /* Tag Styles */
         .tag {
             display: inline-flex;
             align-items: center;
@@ -284,7 +282,6 @@
             transform: scale(1.05);
         }
 
-        /* QR Popup Styles */
         .qr-popup {
             position: fixed;
             top: 0;
@@ -322,6 +319,26 @@
             color: #f3e5ab;
         }
 
+        .screen-saver {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: black;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .screen-saver img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
         @media (max-width: 768px) {
             .preview-grid {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -351,20 +368,7 @@
     <div id="app" class="w-full min-h-screen"></div>
 
     <script>
-        /**
-         * REYHANTEX FABRIC SHOWROOM - ENHANCED VERSION
-         * Features:
-         * 1. Simple image opening in new tab
-         * 2. Admin panel for uploading images from any device
-         * 3. Random image showcase on landing page
-         * 4. Enhanced tag management system
-         * 5. All Images gallery view
-         * 6. QR Code popup linking to nasa.gov
-         * 7. Form: instagram replaced with brand (شرح برند)
-         * 8. Form: added multi-select رسته شغلی
-         * 9. Main page: two more fabric types (up to id 6) with placeholder images
-         */
-
+        // CONFIG
         const CONFIG = {
             password: "123",
             adminPassword: "admin123",
@@ -373,7 +377,7 @@
             logoImage: localStorage.getItem('reyhantex_logo') || 'assets/logo/IMG_20251209_154206_917.jpg'
         };
 
-        // Base fabrics with their images - EXTENDED TO ID 6 WITH PLACEHOLDERS
+        // FABRICS
         const FABRICS = [
             {
                 id: 1,
@@ -488,7 +492,7 @@
             },
         ];
 
-        // Gallery images - will be loaded from localStorage with tags
+        // GALLERY IMAGES
         let GALLERY_IMAGES = {
             reyhana_male: [],
             reyhana_female: [
@@ -669,7 +673,6 @@
                 { url: 'assets/fabric/poliEsterPanbeh_U/female/Gemini_Generated_Image_x67ju9x67ju9x67j.png', tags: ['ست', 'تیشرت'] },
                 { url: 'assets/fabric/poliEsterPanbeh_U/female/Gemini_Generated_Image_yjod9gyjod9gyjod.png', tags: ['ست', 'تیشرت'] },
                 { url: 'assets/fabric/poliEsterPanbeh_U/female/Gemini_Generated_Image_z7msuzz7msuzz7ms.png', tags: ['ست', 'تاپ'] },
-                // NEW IMAGES FROM YOUR LIST:
                 { url: 'assets/fabric/poliEsterPanbeh_U/female/new/1771246711381.png', tags: [] },
                 { url: 'assets/fabric/poliEsterPanbeh_U/female/new/1771246830091.png', tags: [] },
                 { url: 'assets/fabric/poliEsterPanbeh_U/female/new/1771246898537.png', tags: [] },
@@ -885,18 +888,29 @@
             bermando_children: [],
         };
 
-        // Tag Management System - FIXED: Properly initialized with all tags from images
+        // TAG MANAGEMENT
         let TAGS_DB = {
             allTags: new Set(),
-            imageTags: {} // imageUrl -> [tags]
+            imageTags: {}
         };
 
-        // Initialize tags from gallery images
+        // SCREEN SAVER
+        let screenSaverTimer = null;
+        let screenSaverActive = false;
+        let screenSaverImages = [];
+        let screenSaverInterval = null;
+
+        // PLAY MODE
+        let playModeActive = false;
+        let playModeImages = [];
+        let playModeIndex = 0;
+        let playModeInterval = null;
+
+        // Initialize tags
         function initializeTags() {
             TAGS_DB.allTags.clear();
             TAGS_DB.imageTags = {};
 
-            // Extract tags from all images
             Object.values(GALLERY_IMAGES).forEach(categoryImages => {
                 categoryImages.forEach(imageData => {
                     if (imageData.tags && Array.isArray(imageData.tags)) {
@@ -924,7 +938,6 @@
                     TAGS_DB.allTags = new Set(parsed.allTags || []);
                     TAGS_DB.imageTags = parsed.imageTags || {};
 
-                    // Update gallery images with saved tags
                     Object.values(GALLERY_IMAGES).forEach(categoryImages => {
                         categoryImages.forEach(imageData => {
                             if (TAGS_DB.imageTags[imageData.url]) {
@@ -947,7 +960,6 @@
                 TAGS_DB.imageTags[imageUrl].push(tag);
                 TAGS_DB.allTags.add(tag);
 
-                // Update the image data in gallery
                 Object.values(GALLERY_IMAGES).forEach(categoryImages => {
                     const image = categoryImages.find(img => img.url === imageUrl);
                     if (image) {
@@ -967,12 +979,10 @@
                 if (index > -1) {
                     TAGS_DB.imageTags[imageUrl].splice(index, 1);
 
-                    // If no tags left, remove the entry
                     if (TAGS_DB.imageTags[imageUrl].length === 0) {
                         delete TAGS_DB.imageTags[imageUrl];
                     }
 
-                    // Update the image data in gallery
                     Object.values(GALLERY_IMAGES).forEach(categoryImages => {
                         const image = categoryImages.find(img => img.url === imageUrl);
                         if (image) {
@@ -1021,8 +1031,8 @@
                     (fabricName === 'reyhana' && f.enName === 'Reyhana') ||
                     (fabricName === 'selina' && f.enName === 'Selina') ||
                     (fabricName === 'gipur1' && f.enName === 'Gipur1') ||
-                    (fabricName === 'pofakiSadeh' && f.enName === 'PofakiSadeh') ||  // New
-                    (fabricName === 'bermando' && f.enName === 'Bermando');           // New
+                    (fabricName === 'pofakiSadeh' && f.enName === 'PofakiSadeh') ||
+                    (fabricName === 'bermando' && f.enName === 'Bermando');
             });
             return fabric ? fabric.name : fabricName;
         }
@@ -1033,7 +1043,6 @@
             return category ? category.label : categoryId;
         }
 
-        // Get all images from entire platform
         function getAllImages() {
             const allImages = [];
 
@@ -1052,14 +1061,12 @@
             return allImages;
         }
 
-        // SIMPLE FUNCTION TO OPEN IMAGE IN NEW TAB
         function openImageInNewTab(imageUrl) {
             if (imageUrl) {
                 window.open(imageUrl, '_blank');
             }
         }
 
-        // Helper function to get random image for a fabric
         function getRandomImageForFabric(fabricId) {
             const fabricName = getFabricNameById(fabricId);
             const allImages = [
@@ -1073,11 +1080,9 @@
                 return randomImage.url;
             }
 
-            // Fallback to default image if no gallery images
             return FABRICS.find(f => f.id === fabricId).image;
         }
 
-        // Helper function to get all images for a fabric
         function getAllImagesForFabric(fabricId) {
             const fabricName = getFabricNameById(fabricId);
             const images = [
@@ -1088,7 +1093,6 @@
             return images.map(img => img.url);
         }
 
-        // Image Management Functions
         function saveImagesToStorage() {
             const imagesToSave = {};
             Object.keys(GALLERY_IMAGES).forEach(key => {
@@ -1102,10 +1106,8 @@
             if (savedImages) {
                 try {
                     const parsed = JSON.parse(savedImages);
-                    // Merge with default images (preserve originals)
                     Object.keys(parsed).forEach(key => {
                         if (GALLERY_IMAGES[key]) {
-                            // Add only new images that don't already exist
                             parsed[key].forEach(imgData => {
                                 const exists = GALLERY_IMAGES[key].some(existingImg =>
                                     existingImg.url === imgData.url
@@ -1131,6 +1133,7 @@
                 3: 'selina',
                 4: 'poliEsterPanbeh',
                 5: 'gipur1',
+                6: 'pofakiSadeh',
                 7: 'bermando'
             };
             return fabricNames[id];
@@ -1142,45 +1145,121 @@
             return GALLERY_IMAGES[key] || [];
         }
 
-        // Image Upload Handler
-        async function handleImageUpload(fabricId, categoryId, files) {
-            const fabricName = getFabricNameById(fabricId);
-            const key = `${fabricName}_${categoryId}`;
-
-            if (!GALLERY_IMAGES[key]) {
-                GALLERY_IMAGES[key] = [];
+        // SCREEN SAVER FUNCTIONS
+        function resetScreenSaverTimer() {
+            if (screenSaverTimer) {
+                clearTimeout(screenSaverTimer);
             }
 
-            const categoryLabel = CATEGORIES.find(c => c.id === categoryId)?.label || categoryId;
-
-            for (const file of files) {
-                if (file.type.startsWith('image/')) {
-                    // Convert image to data URL
-                    const reader = new FileReader();
-
-                    reader.onload = function (e) {
-                        const imageUrl = e.target.result;
-                        const imageData = {
-                            url: imageUrl,
-                            tags: []
-                        };
-                        GALLERY_IMAGES[key].push(imageData);
-
-                        saveImagesToStorage();
-                        showNotification(`تصویر ${categoryLabel} با موفقیت آپلود شد`, 'success');
-
-                        // Refresh view if we're in admin panel
-                        if (state.view === 'admin' || state.view === 'imageUpload' || state.view === 'tagManager' || state.view === 'allImages') {
-                            render();
-                        }
-                    };
-
-                    reader.readAsDataURL(file);
-                }
+            if (state.view !== 'gate' && !screenSaverActive && !playModeActive) {
+                screenSaverTimer = setTimeout(startScreenSaver, 30000);
             }
         }
 
-        // Simple Database
+        function startScreenSaver() {
+            if (screenSaverActive || state.view === 'gate' || playModeActive) return;
+
+            const allImages = getAllImages();
+            if (allImages.length === 0) return;
+
+            screenSaverActive = true;
+            screenSaverImages = allImages;
+
+            const screenSaverEl = document.createElement('div');
+            screenSaverEl.className = 'screen-saver';
+            screenSaverEl.id = 'screenSaver';
+            screenSaverEl.onclick = stopScreenSaver;
+
+            const randomIndex = Math.floor(Math.random() * screenSaverImages.length);
+            const img = document.createElement('img');
+            img.src = screenSaverImages[randomIndex].url;
+            img.alt = 'Screen Saver';
+            screenSaverEl.appendChild(img);
+
+            document.body.appendChild(screenSaverEl);
+
+            screenSaverInterval = setInterval(() => {
+                const currentEl = document.getElementById('screenSaver');
+                if (currentEl && screenSaverImages.length > 0) {
+                    const newIndex = Math.floor(Math.random() * screenSaverImages.length);
+                    currentEl.innerHTML = `<img src="${screenSaverImages[newIndex].url}" alt="Screen Saver">`;
+                }
+            }, 3000);
+        }
+
+        function stopScreenSaver() {
+            const screenSaverEl = document.getElementById('screenSaver');
+            if (screenSaverEl) {
+                screenSaverEl.remove();
+            }
+
+            if (screenSaverInterval) {
+                clearInterval(screenSaverInterval);
+                screenSaverInterval = null;
+            }
+
+            screenSaverActive = false;
+            resetScreenSaverTimer();
+        }
+
+        // PLAY MODE FUNCTIONS
+        function startPlayMode(images) {
+            if (!images || images.length === 0) {
+                showNotification('تصویری برای نمایش وجود ندارد', 'warning');
+                return;
+            }
+
+            if (playModeActive) {
+                stopPlayMode();
+            }
+
+            if (screenSaverActive) {
+                stopScreenSaver();
+            }
+
+            playModeActive = true;
+            playModeImages = images;
+            playModeIndex = 0;
+
+            const playModeEl = document.createElement('div');
+            playModeEl.className = 'screen-saver';
+            playModeEl.id = 'playMode';
+            playModeEl.onclick = stopPlayMode;
+
+            const img = document.createElement('img');
+            img.src = playModeImages[0].url;
+            img.alt = 'Play Mode';
+            playModeEl.appendChild(img);
+
+            document.body.appendChild(playModeEl);
+
+            playModeInterval = setInterval(() => {
+                const currentEl = document.getElementById('playMode');
+                if (currentEl && playModeActive) {
+                    playModeIndex = (playModeIndex + 1) % playModeImages.length;
+                    currentEl.innerHTML = `<img src="${playModeImages[playModeIndex].url}" alt="Play Mode">`;
+                }
+            }, 3000);
+        }
+
+        function stopPlayMode() {
+            const playModeEl = document.getElementById('playMode');
+            if (playModeEl) {
+                playModeEl.remove();
+            }
+
+            if (playModeInterval) {
+                clearInterval(playModeInterval);
+                playModeInterval = null;
+            }
+
+            playModeActive = false;
+            playModeImages = [];
+            playModeIndex = 0;
+            resetScreenSaverTimer();
+        }
+
+        // SIMPLE DATABASE
         class SimpleMemoryDB {
             constructor() {
                 this.customers = JSON.parse(localStorage.getItem('reyhantex_customers') || '[]');
@@ -1222,10 +1301,10 @@
 
         const db = new SimpleMemoryDB();
 
-        // Application State
+        // APPLICATION STATE
         const state = {
             view: 'gate',
-            userData: { name: '', phone: '', brand: '', jobCategories: '' }, // instagram replaced with brand, added jobCategories
+            userData: { name: '', phone: '', brand: '', jobCategories: '' },
             selectedFabric: null,
             selectedCategory: null,
             adminUploadState: {
@@ -1247,17 +1326,18 @@
                 selectedImage: null,
                 bulkTags: []
             },
-            qrPopupVisible: false // QR popup state
+            qrPopupVisible: false
         };
 
-        // Navigation Helper
+        // NAVIGATION
         function navigateTo(view) {
             state.view = view;
+            resetScreenSaverTimer();
             render();
             window.scrollTo(0, 0);
         }
 
-        // Notification System
+        // NOTIFICATION
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-slide-up ${type === 'success' ? 'bg-green-600' :
@@ -1282,9 +1362,10 @@
             }, 3000);
         }
 
-        // QR Popup Functions
+        // QR POPUP
         function toggleQrPopup() {
             state.qrPopupVisible = !state.qrPopupVisible;
+            resetScreenSaverTimer();
             render();
         }
 
@@ -1313,7 +1394,7 @@
             `;
         }
 
-        // Logo Component
+        // LOGO
         function getLogoMarkup(size = 'w-40 h-40', animate = true) {
             return `
                 <div class="flex flex-col items-center justify-center ${animate ? 'animate-logo-float' : ''}">
@@ -1327,7 +1408,7 @@
             `;
         }
 
-        // All Images Gallery View
+        // ALL IMAGES VIEW
         function createAllImagesView() {
             const allImages = getAllImages();
 
@@ -1335,13 +1416,11 @@
             el.className = 'min-h-screen animate-fade-in bg-green-gradient';
             el.innerHTML = `
                 <div class="pt-20 pb-12 px-4">
-                    <!-- Header -->
                     <div class="text-center mb-12">
                         <h2 class="text-3xl font-bold text-white">همه تصاویر پلتفرم</h2>
                         <p class="text-reyhan-gold text-sm mt-2">${allImages.length} تصویر از تمامی پارچه‌ها و دسته‌بندی‌ها</p>
                     </div>
                     
-                    <!-- Filter Options -->
                     <div class="glass-panel rounded-2xl p-6 mb-8 backdrop-blur-xl">
                         <div class="flex flex-wrap gap-4 items-center justify-between">
                             <div class="flex items-center gap-4">
@@ -1366,7 +1445,6 @@
                         </div>
                     </div>
                     
-                    <!-- Gallery Grid -->
                     ${allImages.length > 0 ? `
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="allImagesGrid">
                             ${allImages.map((imageData, index) => {
@@ -1376,13 +1454,11 @@
                                      data-fabric="${imageData.fabric}"
                                      data-category="${imageData.categoryName}">
                                     
-                                    <!-- Image Info Badge -->
                                     <div class="absolute top-2 right-2 z-20 flex flex-col gap-1">
                                         <span class="bg-blue-600/80 text-white text-xs px-2 py-1 rounded">${imageData.fabric}</span>
                                         <span class="bg-pink-600/80 text-white text-xs px-2 py-1 rounded">${imageData.categoryName}</span>
                                     </div>
                                     
-                                    <!-- Tag Badge -->
                                     ${tags.length > 0 ? `
                                         <div class="image-tag-badge" onclick="openImageTagEditor('${imageData.url}')">
                                             <i data-lucide="tag" class="w-3 h-3 inline ml-1"></i>
@@ -1395,12 +1471,10 @@
                                         </div>
                                     `}
                                     
-                                    <!-- Image -->
                                     <img src="${imageData.url}"
                                          class="w-full h-64 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
                                          onclick="openImageInNewTab('${imageData.url}')">
                                     
-                                    <!-- Tags Overlay -->
                                     <div class="image-tags-overlay">
                                         ${tags.length > 0 ? `
                                             <div class="flex flex-wrap gap-1 justify-center">
@@ -1415,13 +1489,11 @@
                                         `}
                                     </div>
                                     
-                                    <!-- Quick Tag Button -->
                                     <button onclick="openImageTagEditor('${imageData.url}')"
                                             class="quick-tag-btn">
                                         <i data-lucide="tag" class="w-4 h-4"></i>
                                     </button>
                                     
-                                    <!-- Image Number -->
                                     <div class="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                                         ${index + 1}
                                     </div>
@@ -1435,7 +1507,6 @@
                         </div>
                     `}
                     
-                    <!-- Back Button -->
                     <div class="text-center mt-12">
                         <button onclick="navigateTo('landing')"
                                 class="inline-flex items-center gap-2 px-6 py-3 border-2 border-reyhan-gold/50 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/10 transition-all backdrop-blur-sm">
@@ -1446,7 +1517,6 @@
                 </div>
             `;
 
-            // Add filter functionality
             setTimeout(() => {
                 const fabricFilter = el.querySelector('#fabricFilter');
                 const categoryFilter = el.querySelector('#categoryFilter');
@@ -1490,7 +1560,7 @@
             return el;
         }
 
-        // Tag Search Modal
+        // TAG SEARCH
         function createTagSearchModal() {
             if (!state.tagSearchState.isOpen) return '';
 
@@ -1603,6 +1673,7 @@
             state.tagSearchState.searchQuery = '';
             state.tagSearchState.searchResults = [];
             state.tagSearchState.selectedTag = null;
+            resetScreenSaverTimer();
             render();
             setTimeout(() => {
                 const input = document.getElementById('tagSearchInput');
@@ -1634,24 +1705,21 @@
             render();
         };
 
-        // Enhanced Tag Manager
+        // TAG MANAGER
         function createTagManagerView() {
             const el = document.createElement('div');
             el.className = 'min-h-screen bg-green-gradient p-4 animate-fade-in';
 
             el.innerHTML = `
                 <div class="max-w-7xl mx-auto">
-                    <!-- Header -->
                     <div class="text-center mb-8">
                         <h1 class="text-3xl font-bold text-white">مدیریت تگ‌های تصاویر</h1>
                         <p class="text-reyhan-gold">تگ‌ها را به تصاویر اضافه، حذف یا ویرایش کنید</p>
                     </div>
                     
-                    <!-- Fabric and Category Selection -->
                     <div class="glass-panel rounded-2xl p-6 mb-6 backdrop-blur-xl">
                         <h2 class="text-xl font-bold text-white mb-4">انتخاب پارچه و دسته‌بندی</h2>
                         
-                        <!-- Fabric Selection -->
                         <div class="mb-6">
                             <h3 class="font-bold text-reyhan-gold mb-3">پارچه</h3>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1666,7 +1734,6 @@
                             </div>
                         </div>
                         
-                        <!-- Category Selection -->
                         ${state.tagManagerState.selectedFabric ? `
                             <div class="mb-6">
                                 <h3 class="font-bold text-reyhan-gold mb-3">دسته‌بندی</h3>
@@ -1683,7 +1750,6 @@
                             </div>
                         ` : ''}
                         
-                        <!-- All Tags Quick Access -->
                         ${state.tagManagerState.selectedFabric && state.tagManagerState.selectedCategory ? `
                             <div class="mt-6 pt-6 border-t border-reyhan-gold/20">
                                 <h3 class="font-bold text-white mb-3">تگ‌های موجود</h3>
@@ -1709,7 +1775,6 @@
                         ` : ''}
                     </div>
                     
-                    <!-- Image Gallery for Tag Management -->
                     ${state.tagManagerState.selectedFabric && state.tagManagerState.selectedCategory ? `
                         <div class="mb-6">
                             <div class="flex justify-between items-center mb-4">
@@ -1744,7 +1809,6 @@
                                                      class="w-full h-48 object-cover cursor-pointer"
                                                      onclick="openImageInNewTab('${imageUrl}')">
                                                 
-                                                <!-- Quick Tag Buttons -->
                                                 <div class="absolute top-2 right-2 flex gap-2">
                                                     <button onclick="openImageTagEditor('${imageUrl}')"
                                                             class="bg-black/70 text-reyhan-gold p-2 rounded-lg hover:bg-black/90 transition-all"
@@ -1758,7 +1822,6 @@
                                                     </button>
                                                 </div>
                                                 
-                                                <!-- Image Tags -->
                                                 <div class="image-tags-overlay">
                                                     ${tags.length > 0 ? `
                                                         <div class="flex flex-wrap gap-1 justify-center">
@@ -1776,7 +1839,6 @@
                                                     `}
                                                 </div>
                                                 
-                                                <!-- Image Number -->
                                                 <div class="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
                                                     ${index + 1}
                                                 </div>
@@ -1784,7 +1846,6 @@
                                         `}).join('')}
                                     </div>
                                     
-                                    <!-- Bulk Actions -->
                                     <div class="mt-6 glass-panel rounded-2xl p-6 backdrop-blur-xl">
                                         <h3 class="font-bold text-white mb-4">عملیات گروهی</h3>
                                         <div class="flex flex-wrap gap-4">
@@ -1810,7 +1871,6 @@
                         </div>
                     ` : ''}
                     
-                    <!-- Action Buttons -->
                     <div class="flex justify-between mt-6">
                         <button onclick="navigateTo('admin')"
                                 class="px-6 py-3 border-2 border-reyhan-gold/50 text-reyhan-gold rounded-lg font-bold hover:bg-reyhan-gold/10 transition-all backdrop-blur-sm">
@@ -1838,7 +1898,6 @@
             return el;
         }
 
-        // Tag Manager Functions
         window.openTagManager = () => {
             state.view = 'tagManager';
             state.tagManagerState = {
@@ -1975,11 +2034,9 @@
                 const tagToDelete = prompt(`تگ‌های موجود:\n${tagList}\n\nنام تگی که می‌خواهید حذف کنید را وارد کنید:`);
                 if (tagToDelete && allTags.includes(tagToDelete)) {
                     if (confirm(`آیا از حذف تگ "${tagToDelete}" مطمئن هستید؟ این تگ از ${getImagesByTag(tagToDelete).length} تصویر حذف خواهد شد.`)) {
-                        // Remove tag from all images
                         Object.keys(TAGS_DB.imageTags).forEach(imageUrl => {
                             removeTagFromImage(imageUrl, tagToDelete);
                         });
-                        // Remove from allTags
                         TAGS_DB.allTags.delete(tagToDelete);
                         saveTagsToStorage();
                         showNotification(`تگ "${tagToDelete}" حذف شد`, 'success');
@@ -1993,14 +2050,12 @@
                 if (oldTag && allTags.includes(oldTag)) {
                     const newTag = prompt('نام جدید تگ را وارد کنید:');
                     if (newTag && newTag.trim()) {
-                        // Update tag in all images
                         Object.keys(TAGS_DB.imageTags).forEach(imageUrl => {
                             if (TAGS_DB.imageTags[imageUrl].includes(oldTag)) {
                                 removeTagFromImage(imageUrl, oldTag);
                                 addTagToImage(imageUrl, newTag);
                             }
                         });
-                        // Update allTags
                         TAGS_DB.allTags.delete(oldTag);
                         TAGS_DB.allTags.add(newTag);
                         saveTagsToStorage();
@@ -2016,7 +2071,6 @@
 
                 if (tag1 && tag2 && allTags.includes(tag1) && allTags.includes(tag2)) {
                     if (confirm(`آیا می‌خواهید تگ "${tag2}" را با "${tag1}" ادغام کنید؟`)) {
-                        // Merge tag2 into tag1
                         Object.keys(TAGS_DB.imageTags).forEach(imageUrl => {
                             if (TAGS_DB.imageTags[imageUrl].includes(tag2)) {
                                 removeTagFromImage(imageUrl, tag2);
@@ -2025,7 +2079,6 @@
                                 }
                             }
                         });
-                        // Remove tag2 from allTags
                         TAGS_DB.allTags.delete(tag2);
                         saveTagsToStorage();
                         showNotification(`تگ‌ها با موفقیت ادغام شدند`, 'success');
@@ -2086,7 +2139,7 @@
             }
         };
 
-        // Tag Editor Modal for Image
+        // TAG EDITOR
         function createTagEditorModal(imageUrl) {
             if (!imageUrl) return '';
 
@@ -2212,28 +2265,24 @@
             }
         };
 
-        // Render Engine
+        // RENDER
         function render() {
             const app = document.getElementById('app');
             app.innerHTML = '';
 
-            // Add Search, All Images and QR buttons to all pages except gate
             if (state.view !== 'gate') {
-                // All Images Button
                 const allImagesBtn = document.createElement('button');
                 allImagesBtn.onclick = openAllImages;
                 allImagesBtn.className = 'fixed top-4 right-16 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
                 allImagesBtn.innerHTML = '<i data-lucide="grid" class="w-5 h-5 text-reyhan-gold"></i>';
                 app.appendChild(allImagesBtn);
 
-                // Search Button
                 const searchBtn = document.createElement('button');
                 searchBtn.onclick = openTagSearch;
                 searchBtn.className = 'fixed top-4 right-4 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
                 searchBtn.innerHTML = '<i data-lucide="search" class="w-5 h-5 text-reyhan-gold"></i>';
                 app.appendChild(searchBtn);
 
-                // QR Code Button - NEW
                 const qrBtn = document.createElement('button');
                 qrBtn.onclick = toggleQrPopup;
                 qrBtn.className = 'fixed top-4 right-32 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
@@ -2241,7 +2290,6 @@
                 app.appendChild(qrBtn);
             }
 
-            // Add Home button to all pages except gate and landing
             if (state.view !== 'gate' && state.view !== 'landing') {
                 const homeBtn = document.createElement('button');
                 homeBtn.onclick = () => navigateTo('landing');
@@ -2250,7 +2298,6 @@
                 app.appendChild(homeBtn);
             }
 
-            // Add Admin button on landing page
             if (state.view === 'landing') {
                 const adminBtn = document.createElement('button');
                 adminBtn.onclick = requestAdminAccess;
@@ -2271,25 +2318,25 @@
                 case 'allImages': app.appendChild(createAllImagesView()); break;
             }
 
-            // Add Tag Search Modal if open
             if (state.tagSearchState.isOpen) {
                 app.innerHTML += createTagSearchModal();
             }
 
-            // Add Tag Editor Modal if editing
             if (currentEditingImage) {
                 app.innerHTML += createTagEditorModal(currentEditingImage);
             }
 
-            // Add QR Popup if visible
             if (state.qrPopupVisible) {
                 app.innerHTML += createQrPopup();
             }
 
-            setTimeout(() => lucide.createIcons(), 50);
+            setTimeout(() => {
+                lucide.createIcons();
+                resetScreenSaverTimer();
+            }, 50);
         }
 
-        // Admin Access Function
+        // ADMIN ACCESS
         function requestAdminAccess() {
             const password = prompt('لطفا رمز مدیریت را وارد کنید:');
             if (password === CONFIG.adminPassword) {
@@ -2299,7 +2346,7 @@
             }
         }
 
-        // View 1: Gate
+        // GATE VIEW
         function createGateView() {
             const el = document.createElement('div');
             el.className = 'w-full h-screen flex flex-col items-center justify-center bg-green-gradient relative animate-fade-in overflow-hidden';
@@ -2349,7 +2396,7 @@
             return el;
         }
 
-        // View 2: Enhanced Landing Page with Random Image Showcase (Now includes 6 fabrics)
+        // LANDING VIEW
         function createEnhancedLandingView() {
             const el = document.createElement('div');
             el.className = 'w-full min-h-screen animate-fade-in';
@@ -2363,7 +2410,6 @@
                     </div>
                 </div>
 
-                <!-- Hero Background -->
                 <div class="absolute inset-0 pt-64">
                     <div class="absolute inset-0 bg-gradient-to-b from-reyhan-green/30 via-transparent to-reyhan-green"></div>
                     <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-reyhan-gold/5 rounded-full blur-3xl"></div>
@@ -2378,7 +2424,6 @@
                    
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         ${FABRICS.map((fabric, index) => {
-                // Get random image for this fabric
                 const randomImage = getRandomImageForFabric(fabric.id);
 
                 return `
@@ -2386,32 +2431,27 @@
                                      class="group relative bg-gradient-to-br from-reyhan-dark to-reyhan-green rounded-3xl overflow-hidden cursor-pointer border-2 border-reyhan-gold/10 hover:border-reyhan-gold transition-all duration-500 hover:-translate-y-3 animate-slide-up"
                                      style="animation-delay: ${index * 0.1}s">
                                    
-                                    <!-- Random Fabric Image -->
                                     <div class="aspect-square overflow-hidden relative">
                                         <img src="${randomImage}"
                                              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 cursor-pointer"
                                              onclick="openImageInNewTab('${randomImage}')">
                                         <div class="absolute inset-0 bg-gradient-to-t from-reyhan-green to-transparent opacity-80"></div>
                                        
-                                        <!-- Price Tag -->
                                         <div class="absolute top-4 left-4 px-4 py-2 bg-reyhan-gold/20 backdrop-blur-sm rounded-full">
                                             <span class="text-reyhan-gold font-bold">${fabric.price}</span>
                                         </div>
                                     </div>
                                    
-                                    <!-- Fabric Info -->
                                     <div class="p-6 relative">
                                         <h3 class="text-xl font-bold text-white mb-2">${fabric.name}</h3>
                                         <p class="text-reyhan-gold text-sm mb-4">${fabric.enName}</p>
                                        
-                                        <!-- Category Tags -->
                                         <div class="flex gap-2 mt-4">
                                             <span class="px-3 py-1 bg-blue-900/30 text-blue-200 text-xs rounded-full border border-blue-700/30">آقایان</span>
                                             <span class="px-3 py-1 bg-pink-900/30 text-pink-200 text-xs rounded-full border border-pink-700/30">بانوان</span>
                                             <span class="px-3 py-1 bg-purple-900/30 text-purple-200 text-xs rounded-full border border-purple-700/30">کودکان</span>
                                         </div>
                                        
-                                        <!-- Select Button -->
                                         <div class="mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <button class="w-full py-3 btn-gold rounded-lg font-bold flex items-center justify-center gap-2">
                                                 <span>انتخاب پارچه</span>
@@ -2424,7 +2464,6 @@
             }).join('')}
                     </div>
                    
-                    <!-- Footer Note -->
                     <div class="text-center mt-16 text-reyhan-gold/50 text-sm">
                         <i data-lucide="star" class="w-4 h-4 inline ml-1"></i>
                         هر پارچه شامل سه دسته‌بندی مردانه، زنانه و کودک می‌باشد
@@ -2432,7 +2471,6 @@
                 </div>
             `;
 
-            // Scroll handler for shrinking header
             setTimeout(() => {
                 const headerSection = el.querySelector('#headerSection');
                 const logoContainer = el.querySelector('#logoContainer');
@@ -2442,7 +2480,6 @@
                     const shrinkPoint = 50;
 
                     if (scrollY > shrinkPoint) {
-                        // Shrunk state
                         headerSection.style.padding = '10px 0';
                         headerSection.style.height = '80px';
                         headerSection.style.backdropFilter = 'blur(20px)';
@@ -2460,7 +2497,6 @@
                             </div>
                         `;
                     } else {
-                        // Normal state
                         headerSection.style.padding = '20px 0';
                         headerSection.style.height = 'auto';
                         headerSection.style.backdropFilter = 'blur(10px)';
@@ -2487,7 +2523,7 @@
             navigateTo('form');
         };
 
-        // View 3: Form - MODIFIED: instagram replaced with brand, added multi-select رسته شغلی
+        // FORM VIEW
         function createFormView() {
             const el = document.createElement('div');
             el.className = 'min-h-screen bg-green-gradient animate-fade-in';
@@ -2522,7 +2558,6 @@
                                        placeholder="09123456789">
                             </div>
                            
-                            <!-- NEW: Brand field (replaces Instagram) -->
                             <div>
                                 <label class="block text-reyhan-gold text-sm font-bold mb-2">شرح برند (اختیاری)</label>
                                 <input type="text"
@@ -2531,7 +2566,6 @@
                                        placeholder="نام برند خود را وارد کنید">
                             </div>
 
-                            <!-- NEW: Job Category (رسته شغلی) - Multi-select -->
                             <div>
                                 <label class="block text-reyhan-gold text-sm font-bold mb-2">رسته شغلی:</label>
                                 <div class="bg-reyhan-dark/30 p-4 rounded-lg border border-reyhan-gold/30">
@@ -2598,7 +2632,6 @@
             form.onsubmit = (e) => {
                 e.preventDefault();
 
-                // Get all selected job categories
                 const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
                 const selectedJobCategories = Array.from(checkboxes).map(cb => cb.value).join('، ');
 
@@ -2633,13 +2666,12 @@
             navigateTo('category');
         };
 
-        // View 4: Category Selection
+        // CATEGORY VIEW
         function createCategoryView() {
             const el = document.createElement('div');
             el.className = 'min-h-screen animate-fade-in bg-green-gradient';
             el.innerHTML = `
                 <div class="pt-20 pb-8 px-4">
-                    <!-- Fabric Info Header -->
                     <div class="max-w-md mx-auto mb-8 glass-panel rounded-2xl p-6 backdrop-blur-xl">
                         <div class="text-center">
                             <p class="text-reyhan-gold text-sm mb-2">پارچه انتخابی</p>
@@ -2677,7 +2709,6 @@
                         `).join('')}
                     </div>
                    
-                    <!-- Back Button -->
                     <div class="text-center mt-12">
                         <button onclick="navigateTo('form')"
                                 class="inline-flex items-center gap-2 px-6 py-3 border-2 border-reyhan-gold/50 text-reyhan-gold rounded-lg hover:bg-reyhan-gold/10 transition-all backdrop-blur-sm">
@@ -2715,25 +2746,39 @@
             }, 300);
         };
 
-        // View 5: Gallery/Showroom with Tags Display
+        // GALLERY VIEW WITH PLAY BUTTON (ONLY HERE)
         function createGalleryView() {
             const category = CATEGORIES.find(c => c.id === state.selectedCategory);
             const images = getGalleryImages(state.selectedFabric.id, state.selectedCategory);
 
+            const galleryImages = images.map(img => ({
+                url: img.url,
+                tags: img.tags || []
+            }));
+
             const el = document.createElement('div');
             el.className = 'min-h-screen animate-fade-in bg-green-gradient';
+
+            // Convert images to JSON string for the play button
+            const imagesJson = JSON.stringify(galleryImages);
+
             el.innerHTML = `
                 <div class="pt-20 pb-12 px-4">
-                    <!-- Header -->
                     <div class="text-center mb-12">
                         <h2 class="text-3xl font-bold text-white">نمایشگاه ${category.label}</h2>
                         <p class="text-reyhan-gold text-sm mt-2">طراحی‌های زیبا با پارچه ${state.selectedFabric.name}</p>
+                        
+                        <!-- PLAY BUTTON - ONLY HERE WHEN THERE ARE IMAGES -->
                         ${images.length > 0 ? `
+                            <button onclick='startPlayModeFromGallery(${imagesJson})'
+                                    class="mt-4 px-6 py-3 bg-reyhan-gold text-reyhan-dark rounded-lg font-bold flex items-center gap-2 mx-auto hover:bg-reyhan-goldLight transition-all">
+                                <i data-lucide="play" class="w-5 h-5"></i>
+                                پخش این تصاویر
+                            </button>
                             <p class="text-gray-300 text-sm mt-1">روی هر تصویر کلیک کنید تا در تب جدید باز شود</p>
                         ` : ''}
                     </div>
                    
-                    <!-- Gallery Grid -->
                     ${images.length > 0 ? `
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
                             ${images.map((imageData, index) => {
@@ -2742,7 +2787,6 @@
                 return `
                                 <div class="group relative rounded-2xl overflow-hidden border-2 border-reyhan-gold/20 hover:border-reyhan-gold transition-all duration-500 animate-slide-up backdrop-blur-sm image-container"
                                      style="animation-delay: ${index * 0.1}s">
-                                    <!-- Tag Badge -->
                                     ${tags.length > 0 ? `
                                         <div class="image-tag-badge" onclick="openImageTagEditor('${imageUrl}')">
                                             <i data-lucide="tag" class="w-3 h-3 inline ml-1"></i>
@@ -2755,12 +2799,10 @@
                                         </div>
                                     `}
                                     
-                                    <!-- Image -->
                                     <img src="${imageUrl}"
                                          class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700 cursor-pointer"
                                          onclick="openImageInNewTab('${imageUrl}')">
                                     
-                                    <!-- Tags Overlay -->
                                     <div class="image-tags-overlay">
                                         ${tags.length > 0 ? `
                                             <div class="flex flex-wrap gap-1 justify-center">
@@ -2775,13 +2817,11 @@
                                         `}
                                     </div>
                                     
-                                    <!-- Quick Tag Button -->
                                     <button onclick="openImageTagEditor('${imageUrl}')"
                                             class="quick-tag-btn">
                                         <i data-lucide="tag" class="w-4 h-4"></i>
                                     </button>
                                     
-                                    <!-- Image Number -->
                                     <div class="absolute top-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded">
                                         ${index + 1}
                                     </div>
@@ -2792,10 +2832,18 @@
                         <div class="text-center py-16 glass-panel rounded-2xl max-w-md mx-auto">
                             <i data-lucide="image-off" class="w-16 h-16 text-reyhan-gold/50 mx-auto mb-4"></i>
                             <p class="text-gray-300">تصویری برای این دسته‌بندی موجود نیست</p>
+                            ${state.selectedFabric.id === 6 && state.selectedCategory === 'female' ? `
+                                <div class="mt-4 text-reyhan-gold">
+                                    <p>اما تصاویری در گالری موجود است:</p>
+                                    <button onclick="navigateTo('allImages')" 
+                                            class="mt-2 px-4 py-2 bg-reyhan-gold/20 text-reyhan-gold rounded-lg">
+                                        مشاهده همه تصاویر
+                                    </button>
+                                </div>
+                            ` : ''}
                         </div>
                     `}
                    
-                    <!-- Action Buttons -->
                     <div class="max-w-md mx-auto mt-16">
                         <div class="glass-panel rounded-2xl p-8 text-center backdrop-blur-xl">
                             <div class="w-16 h-16 bg-gradient-to-br from-reyhan-gold to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
@@ -2825,7 +2873,17 @@
             return el;
         }
 
-        // View 6: Enhanced Admin Panel (Updated to show brand and jobCategories)
+        // PLAY MODE FROM GALLERY
+        window.startPlayModeFromGallery = function (images) {
+            if (!images || images.length === 0) {
+                showNotification('تصویری برای نمایش وجود ندارد', 'warning');
+                return;
+            }
+
+            startPlayMode(images);
+        };
+
+        // ADMIN VIEW
         function createEnhancedAdminView() {
             const customers = db.getAllCustomers();
 
@@ -2833,7 +2891,6 @@
             el.className = 'min-h-screen bg-gray-100 p-4 animate-fade-in';
             el.innerHTML = `
                 <div class="max-w-7xl mx-auto">
-                    <!-- Admin Header -->
                     <div class="bg-reyhan-green rounded-2xl p-6 mb-6 shadow-xl">
                         <div class="flex flex-col md:flex-row justify-between items-center">
                             <div class="text-center md:text-right mb-4 md:mb-0">
@@ -2880,7 +2937,6 @@
                         </div>
                     </div>
                    
-                    <!-- Tag Statistics -->
                     <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-bold text-gray-800">آمار تگ‌ها</h3>
@@ -2925,7 +2981,6 @@
                         </div>
                     </div>
                    
-                    <!-- Current Logo Preview -->
                     <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
                         <h3 class="text-lg font-bold text-gray-800 mb-4">لوگوی فعلی</h3>
                         <div class="flex flex-col md:flex-row items-center gap-6">
@@ -2944,7 +2999,6 @@
                         </div>
                     </div>
                    
-                    <!-- Image Statistics -->
                     <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
                         <h3 class="text-lg font-bold text-gray-800 mb-4">آمار تصاویر بر اساس پارچه</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2981,7 +3035,6 @@
                         </div>
                     </div>
                    
-                    <!-- Customers Table - UPDATED with Brand and Job Categories columns -->
                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
@@ -3033,7 +3086,7 @@
             return el;
         }
 
-        // View 7: Image Upload Interface with Tags
+        // IMAGE UPLOAD VIEW
         function createImageUploadView() {
             const el = document.createElement('div');
             el.className = 'min-h-screen bg-green-gradient p-4 animate-fade-in';
@@ -3045,7 +3098,6 @@
                     </div>
                    
                     <div class="glass-panel rounded-2xl p-6 backdrop-blur-xl mb-6">
-                        <!-- Fabric Selection -->
                         <div class="mb-6">
                             <h3 class="text-lg font-bold text-white mb-3">انتخاب پارچه</h3>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -3060,7 +3112,6 @@
                             </div>
                         </div>
                        
-                        <!-- Category Selection -->
                         ${state.adminUploadState.selectedFabric ? `
                             <div class="mb-6">
                                 <h3 class="text-lg font-bold text-white mb-3">انتخاب دسته‌بندی</h3>
@@ -3077,7 +3128,6 @@
                             </div>
                         ` : ''}
                        
-                        <!-- Tag Input for New Images -->
                         ${state.adminUploadState.selectedFabric && state.adminUploadState.selectedCategory ? `
                             <div class="mb-6">
                                 <h3 class="text-lg font-bold text-white mb-3">تگ‌های تصاویر جدید</h3>
@@ -3116,7 +3166,6 @@
                             </div>
                         ` : ''}
                        
-                        <!-- Image Upload Area -->
                         ${state.adminUploadState.selectedFabric && state.adminUploadState.selectedCategory ? `
                             <div class="mb-6">
                                 <h3 class="text-lg font-bold text-white mb-3">آپلود تصاویر</h3>
@@ -3147,7 +3196,6 @@
                             </div>
                         `}
                        
-                        <!-- Current Images Preview -->
                         ${state.adminUploadState.selectedFabric && state.adminUploadState.selectedCategory ? `
                             <div>
                                 <h3 class="text-lg font-bold text-white mb-3">تصاویر فعلی</h3>
@@ -3177,7 +3225,6 @@
                         ` : ''}
                     </div>
                    
-                    <!-- Action Buttons -->
                     <div class="flex justify-between">
                         <button onclick="navigateTo('admin')"
                                 class="px-6 py-3 border-2 border-reyhan-gold/50 text-reyhan-gold rounded-lg font-bold hover:bg-reyhan-gold/10 transition-all backdrop-blur-sm">
@@ -3197,7 +3244,7 @@
             return el;
         }
 
-        // Tag management for upload
+        // UPLOAD FUNCTIONS
         window.addUploadTag = () => {
             const input = document.getElementById('uploadTagInput');
             if (input && input.value.trim()) {
@@ -3298,12 +3345,11 @@
                         const imageUrl = e.target.result;
                         const imageData = {
                             url: imageUrl,
-                            tags: [...tags] // Copy tags array
+                            tags: [...tags]
                         };
 
                         GALLERY_IMAGES[key].push(imageData);
 
-                        // Add to tags database
                         tags.forEach(tag => {
                             addTagToImage(imageUrl, tag);
                         });
@@ -3313,11 +3359,9 @@
                             saveTagsToStorage();
                             showNotification(`${files.length} تصویر ${categoryLabel} با تگ‌ها اضافه شد`, 'success');
 
-                            // Reset upload state
                             state.adminUploadState.uploadedImages = [];
                             state.adminUploadState.tags = [];
 
-                            // Refresh view
                             if (state.view === 'admin' || state.view === 'imageUpload' || state.view === 'tagManager') {
                                 render();
                             }
@@ -3348,7 +3392,7 @@
             navigateTo('imageUpload');
         };
 
-        // Admin Functions
+        // ADMIN FUNCTIONS
         window.changeLogo = () => {
             const newLogoUrl = prompt('لطفا لینک تصویر جدید لوگو را وارد کنید:', CONFIG.logoImage);
             if (newLogoUrl && newLogoUrl.trim() !== '') {
@@ -3486,21 +3530,21 @@
             }, 2500);
         };
 
-        // QR Popup toggle function (global)
         window.toggleQrPopup = toggleQrPopup;
 
-        // Initialize
+        // TRACK USER ACTIVITY FOR SCREEN SAVER
+        document.addEventListener('mousemove', resetScreenSaverTimer);
+        document.addEventListener('keydown', resetScreenSaverTimer);
+        document.addEventListener('click', resetScreenSaverTimer);
+        document.addEventListener('touchstart', resetScreenSaverTimer);
+        document.addEventListener('scroll', resetScreenSaverTimer);
+
+        // INITIALIZE
         document.addEventListener('DOMContentLoaded', () => {
-            // Load saved images from localStorage
             loadImagesFromStorage();
-
-            // Initialize tags - THIS IS THE FIX: Properly initialize tags from GALLERY_IMAGES
             initializeTags();
-
-            // Load saved tags from storage (will override if exists)
             loadTagsFromStorage();
 
-            // Load saved fabric images
             const savedFabricImages = localStorage.getItem('reyhantex_fabric_images');
             if (savedFabricImages) {
                 try {
@@ -3518,7 +3562,6 @@
 
             render();
 
-            // Add sample data if empty (updated with brand and jobCategories)
             if (db.getAllCustomers().length === 0) {
                 db.addCustomer({
                     name: 'احمد محمدی',
