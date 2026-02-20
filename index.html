@@ -377,6 +377,9 @@
             logoImage: localStorage.getItem('reyhantex_logo') || 'assets/logo/IMG_20251209_154206_917.jpg'
         };
 
+        // Navigation history stack
+        const navigationHistory = [];
+
         // FABRICS
         const FABRICS = [
             {
@@ -1472,12 +1475,33 @@
             qrPopupVisible: false
         };
 
-        // NAVIGATION
+        // NAVIGATION with history tracking
         function navigateTo(view) {
+            // Add current view to history before changing, but avoid duplicates
+            if (navigationHistory.length === 0 || navigationHistory[navigationHistory.length - 1] !== state.view) {
+                navigationHistory.push(state.view);
+            }
+
             state.view = view;
             resetScreenSaverTimer();
             render();
             window.scrollTo(0, 0);
+        }
+
+        // NEW: Back navigation function
+        function goBack() {
+            if (navigationHistory.length > 0) {
+                const previousView = navigationHistory.pop();
+                state.view = previousView;
+                resetScreenSaverTimer();
+                render();
+                window.scrollTo(0, 0);
+            } else {
+                // If no history, go to landing as fallback
+                if (state.view !== 'landing') {
+                    navigateTo('landing');
+                }
+            }
         }
 
         // NOTIFICATION
@@ -2413,22 +2437,31 @@
             const app = document.getElementById('app');
             app.innerHTML = '';
 
+            // Add back button for non-gate views
+            if (state.view !== 'gate') {
+                const backBtn = document.createElement('button');
+                backBtn.onclick = goBack;
+                backBtn.className = 'fixed top-4 right-4 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
+                backBtn.innerHTML = '<i data-lucide="arrow-right" class="w-5 h-5 text-reyhan-gold"></i>';
+                app.appendChild(backBtn);
+            }
+
             if (state.view !== 'gate') {
                 const allImagesBtn = document.createElement('button');
                 allImagesBtn.onclick = openAllImages;
-                allImagesBtn.className = 'fixed top-4 right-16 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
+                allImagesBtn.className = 'fixed top-4 right-20 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
                 allImagesBtn.innerHTML = '<i data-lucide="grid" class="w-5 h-5 text-reyhan-gold"></i>';
                 app.appendChild(allImagesBtn);
 
                 const searchBtn = document.createElement('button');
                 searchBtn.onclick = openTagSearch;
-                searchBtn.className = 'fixed top-4 right-4 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
+                searchBtn.className = 'fixed top-4 right-36 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
                 searchBtn.innerHTML = '<i data-lucide="search" class="w-5 h-5 text-reyhan-gold"></i>';
                 app.appendChild(searchBtn);
 
                 const qrBtn = document.createElement('button');
                 qrBtn.onclick = toggleQrPopup;
-                qrBtn.className = 'fixed top-4 right-32 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
+                qrBtn.className = 'fixed top-4 right-52 z-50 p-3 bg-reyhan-gold/20 hover:bg-reyhan-gold/30 rounded-full transition-all backdrop-blur-sm';
                 qrBtn.innerHTML = '<i data-lucide="qr-code" class="w-5 h-5 text-reyhan-gold"></i>';
                 app.appendChild(qrBtn);
             }
