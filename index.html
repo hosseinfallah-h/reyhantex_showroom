@@ -368,15 +368,109 @@
     <div id="app" class="w-full min-h-screen"></div>
 
     <script>
-        // CONFIG
+        // ==================== CONFIG ====================
         const CONFIG = {
             password: "123",
             adminPassword: "admin123",
             dbName: "ReyhanTexDB",
             dbVersion: 3,
-            logoImage: localStorage.getItem('reyhantex_logo') || 'assets/logo/IMG_20251209_154206_917.jpg'
+            logoImage: localStorage.getItem('reyhantex_logo') || 'assets/logo/IMG_20251209_154206_917.jpg',
+            // Kavehnegar SMS Configuration - Add this
+            sms: {
+                apiKey: "5946613975344B693748344268436E4131554D336568556B474A33784D47486D7A2F2B763737315839464D3D",
+                sender: "2000660110",
+                enabled: true
+            }
         };
 
+        // ==================== SMS FUNCTIONS (NEW) ====================
+        // Main SMS sending function
+        async function sendOrderSms(phoneNumber, customerName, fabricName, categoryName = '') {
+            if (!CONFIG.sms.enabled) {
+                console.log('SMS sending is disabled');
+                return { success: false, message: 'سرویس پیامک غیرفعال است' };
+            }
+
+            // Clean phone number
+            const cleanPhone = phoneNumber.replace(/\D/g, '');
+
+            if (!cleanPhone.match(/^09[0-9]{9}$/)) {
+                console.log('Invalid phone number');
+                return { success: false, message: 'شماره تلفن نامعتبر است' };
+            }
+
+            // Create message - Persian text
+            const message = `🟢 ریحان تکس 🟢\n\n` +
+                `کاربر گرامی ${customerName}\n` +
+                `سفارش شما با موفقیت ثبت شد.\n\n` +
+                `📦 مشخصات سفارش:\n` +
+                `• پارچه: ${fabricName}\n` +
+                `${categoryName ? `• دسته‌بندی: ${categoryName}\n` : ''}` +
+                `• تاریخ: ${new Date().toLocaleDateString('fa-IR')}\n\n` +
+                `🙏 از انتخاب شما متشکریم`;
+
+            const url = `https://api.kavenegar.com/v1/${CONFIG.sms.apiKey}/sms/send.json`;
+
+            const formData = new URLSearchParams();
+            formData.append('receptor', cleanPhone);
+            formData.append('sender', CONFIG.sms.sender);
+            formData.append('message', message);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.return && data.return.status === 200) {
+                    console.log('✅ SMS sent successfully');
+                    // Store in localStorage for history
+                    saveSmsRecord({
+                        phone: cleanPhone,
+                        customerName,
+                        fabricName,
+                        categoryName,
+                        date: new Date().toISOString()
+                    });
+                    return { success: true, message: 'پیامک ارسال شد' };
+                } else {
+                    console.log('❌ SMS failed:', data.return?.message);
+                    return { success: false, message: data.return?.message || 'خطا در ارسال' };
+                }
+            } catch (error) {
+                console.log('❌ Error:', error.message);
+                return { success: false, message: 'خطا در ارتباط با سامانه' };
+            }
+        }
+
+        // Save SMS record to localStorage
+        function saveSmsRecord(record) {
+            try {
+                const history = JSON.parse(localStorage.getItem('reyhantex_sms_history') || '[]');
+                history.push(record);
+                if (history.length > 50) history.shift();
+                localStorage.setItem('reyhantex_sms_history', JSON.stringify(history));
+            } catch (error) {
+                console.error('Error saving SMS record:', error);
+            }
+        }
+
+        // Test function - can be called from console
+        async function testSms(phoneNumber = "09121006895") {
+            const result = await sendOrderSms(phoneNumber, "مشتری آزمایشی", "ریحانا", "بانوان");
+            console.log('Test result:', result);
+            return result;
+        }
+
+        // Make test function globally available
+        window.testSms = testSms;
+
+        // ==================== REST OF YOUR EXISTING CODE (UNCHANGED) ====================
         // Navigation history stack
         const navigationHistory = [];
 
@@ -2848,7 +2942,7 @@
             navigateTo('form');
         };
 
-        // FORM VIEW
+        // ==================== MODIFIED FORM VIEW WITH SMS ====================
         function createFormView() {
             const el = document.createElement('div');
             el.className = 'min-h-screen bg-green-gradient animate-fade-in';
@@ -2954,7 +3048,8 @@
             nameInput.addEventListener('input', validateForm);
             phoneInput.addEventListener('input', validateForm);
 
-            form.onsubmit = (e) => {
+            // MODIFIED: Make form.onsubmit async and add SMS
+            form.onsubmit = async (e) => {
                 e.preventDefault();
 
                 const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
@@ -2975,6 +3070,25 @@
 
                 if (result.success) {
                     showNotification(result.message, 'success');
+
+                    // Send SMS
+                    try {
+                        const smsResult = await sendOrderSms(
+                            state.userData.phone,
+                            state.userData.name,
+                            state.selectedFabric.name
+                        );
+
+                        if (smsResult.success) {
+                            showNotification('✅ پیامک تایید ارسال شد', 'success');
+                        } else {
+                            showNotification('⚠️ اطلاعات ثبت شد اما پیامک ارسال نشد', 'warning');
+                        }
+                    } catch (error) {
+                        console.error('SMS error:', error);
+                        showNotification('⚠️ اطلاعات ثبت شد', 'warning');
+                    }
+
                     setTimeout(() => {
                         navigateTo('category');
                     }, 1000);
@@ -3208,9 +3322,55 @@
             startPlayMode(images);
         };
 
-        // ADMIN VIEW
+        // ==================== MODIFIED FINISH ORDER WITH SMS ====================
+        window.finishOrder = async () => {
+            const category = CATEGORIES.find(c => c.id === state.selectedCategory);
+
+            // Send SMS on completion
+            if (state.userData.phone) {
+                try {
+                    const smsResult = await sendOrderSms(
+                        state.userData.phone,
+                        state.userData.name || 'مشتری گرامی',
+                        state.selectedFabric.name,
+                        category?.label || ''
+                    );
+
+                    if (smsResult.success) {
+                        console.log('✅ Final SMS sent');
+                    }
+                } catch (error) {
+                    console.error('Error sending final SMS:', error);
+                }
+            }
+
+            showNotification('سفارش شما با موفقیت ثبت شد!', 'success');
+
+            const successOverlay = document.createElement('div');
+            successOverlay.className = 'fixed inset-0 z-50 bg-reyhan-green/95 flex flex-col items-center justify-center animate-fade-in';
+            successOverlay.innerHTML = `
+                <div class="text-center">
+                    <div class="w-32 h-32 bg-gradient-to-br from-reyhan-gold to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-8 animate-float">
+                        <i data-lucide="check" class="w-16 h-16 text-reyhan-dark"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-white mb-4">با تشکر از شما</h2>
+                    <p class="text-reyhan-gold text-lg">سفارش شما ثبت و به واحد فروش ارسال شد</p>
+                    <p class="text-reyhan-gold text-sm mt-2">📱 پیامک تایید برای شما ارسال شد</p>
+                </div>
+            `;
+            document.body.appendChild(successOverlay);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                successOverlay.remove();
+                goBackToLanding();
+            }, 2500);
+        };
+
+        // ==================== MODIFIED ADMIN VIEW WITH SMS HISTORY ====================
         function createEnhancedAdminView() {
             const customers = db.getAllCustomers();
+            const smsHistory = JSON.parse(localStorage.getItem('reyhantex_sms_history') || '[]');
 
             const el = document.createElement('div');
             el.className = 'min-h-screen bg-gray-100 p-4 animate-fade-in';
@@ -3304,6 +3464,39 @@
                                 ` : ''}
                             </div>
                         </div>
+                    </div>
+
+                    <!-- NEW: SMS History Section -->
+                    <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">📱 تاریخچه پیامک‌ها</h3>
+                        ${smsHistory.length > 0 ? `
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-right">تاریخ</th>
+                                            <th class="px-4 py-2 text-right">گیرنده</th>
+                                            <th class="px-4 py-2 text-right">نام</th>
+                                            <th class="px-4 py-2 text-right">پارچه</th>
+                                            <th class="px-4 py-2 text-right">دسته‌بندی</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${smsHistory.reverse().map(record => `
+                                            <tr class="border-t">
+                                                <td class="px-4 py-2">${new Date(record.date).toLocaleString('fa-IR')}</td>
+                                                <td class="px-4 py-2 dir-ltr">${record.phone}</td>
+                                                <td class="px-4 py-2">${record.customerName}</td>
+                                                <td class="px-4 py-2">${record.fabricName}</td>
+                                                <td class="px-4 py-2">${record.categoryName || '-'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ` : `
+                            <p class="text-gray-500 text-center py-4">هیچ پیامکی ارسال نشده است</p>
+                        `}
                     </div>
                    
                     <div class="bg-white rounded-xl p-6 mb-6 shadow-lg border border-gray-200">
@@ -3830,29 +4023,6 @@
             state.selectedFabric = null;
             state.selectedCategory = null;
             navigateTo('landing');
-        };
-
-        window.finishOrder = () => {
-            showNotification('سفارش شما با موفقیت ثبت شد!', 'success');
-
-            const successOverlay = document.createElement('div');
-            successOverlay.className = 'fixed inset-0 z-50 bg-reyhan-green/95 flex flex-col items-center justify-center animate-fade-in';
-            successOverlay.innerHTML = `
-                <div class="text-center">
-                    <div class="w-32 h-32 bg-gradient-to-br from-reyhan-gold to-yellow-200 rounded-full flex items-center justify-center mx-auto mb-8 animate-float">
-                        <i data-lucide="check" class="w-16 h-16 text-reyhan-dark"></i>
-                    </div>
-                    <h2 class="text-4xl font-black text-white mb-4">با تشکر از شما</h2>
-                    <p class="text-reyhan-gold text-lg">سفارش شما ثبت و به واحد فروش ارسال شد</p>
-                </div>
-            `;
-            document.body.appendChild(successOverlay);
-            lucide.createIcons();
-
-            setTimeout(() => {
-                successOverlay.remove();
-                goBackToLanding();
-            }, 2500);
         };
 
         window.toggleQrPopup = toggleQrPopup;
